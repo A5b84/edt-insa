@@ -1,0 +1,22 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "browserify",
+            "type": "shell",
+            "command": "browserify src/main.ts -p tsify -t [ babelify --extensions .ts --presets [@babel/preset-env] ] -o build/bundle.js",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "watchify",
+            "type": "shell",
+            "command": "watchify src/main.ts -p tsify -t [ babelify --extensions .ts --presets [@babel/preset-env] ] -o build/bundle.js -v",
+            "group": "build"
+        }
+    ]
+}
