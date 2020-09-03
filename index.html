@@ -3,16 +3,53 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>// TODO CHANGE MOI</title>
+    <title>EDT INSA</title>
     <meta name="viewport" content="width=device-width, initial-scale=.75">
     <!-- Water.css (https://github.com/kognise/water.css) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/dark.min.css">
+    <!-- Material design icons (https://material.io/resources/icons/) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    cc
+    <div id="content">
+
+    </div>
+
+    <!-- Modèles -->
+    <!-- Journée -->
+    <template id="day-template">
+        <div class="day">
+            <div class="day-name"></div>
+            <div class="day-content"></div>
+        </div>
+    </template>
+
+    <!-- Événement -->
+    <template id="event-template">
+        <div class="event">
+            <b class="event-name">?</b>
+            <div class="event-schedule">
+                <span class="material-icons">schedule</span>
+                <span class="event-start">?</span> &RightArrow; <span class="event-end">?</span>
+                (<span class="event-duration">?</span>)
+            </div>
+            <a class="event-location" target="_blank">
+                <span class="material-icons">place</span>
+                <span class="event-location-name">?</span>
+            </a>
+            <div class="event-details">
+                <span class="event-type">?</span> &bullet;
+                <span class="event-group">?</span>
+            </div>
+            <div class="event-person">
+                <span class="material-icons">person</span>
+                <span class="event-person-name">?</span>
+            </div>
+        </div>
+    </template>
 
     <script src="./build/bundle.js"></script>
 
