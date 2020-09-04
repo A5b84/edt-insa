@@ -3,9 +3,31 @@ import Calendar from './Calendar';
 
 
 
+const homeBtn = <HTMLButtonElement> document.getElementById('home-btn');
+const dateInput = <HTMLInputElement> document.getElementById('date-input');
+const previousWeekBtn = <HTMLButtonElement> document.getElementById('previous-week-btn');
+const nextWeekBtn = <HTMLButtonElement> document.getElementById('next-week-btn');
 const content = <HTMLDivElement> document.getElementById('content');
 
 const calendar: Calendar = new Calendar(content);
+
+
+
+function getDate(): Date {
+    return dateInput.valueAsDate || new Date();
+}
+
+function setDate(date: Date): void {
+    dateInput.valueAsDate = date; // Convertit les dates invalide en null
+    calendar.currDate = getDate();
+    calendar.rebuild();
+}
+
+function moveDateRelative(weeks: number) {
+    setDate(
+        new Date(getDate().getTime() + weeks * 7 * 86400e3)
+    );
+}
 
 
 
@@ -33,6 +55,24 @@ addEventListener('resize', () => {
     if (calendar) calendar.updateEventsOverflow();
 });
 
+addEventListener('keydown', e => {
+    // Raccourics
+    if (e.target instanceof HTMLInputElement
+            || e.ctrlKey || e.altKey || e.shiftKey) {
+        return;
+    }
+    if (e.key === 'ArrowLeft') previousWeekBtn.click();
+    else if (e.key === 'ArrowRight') nextWeekBtn.click();
+});
+
+homeBtn.addEventListener('click', () => setDate(new Date()));
+
+dateInput.valueAsDate = new Date();
+dateInput.addEventListener('change', () => setDate(getDate()));
+
+previousWeekBtn.addEventListener('click', () => moveDateRelative(-1));
+nextWeekBtn.addEventListener('click', () => moveDateRelative(1));
+
 
 
 // TODO gzipper et stocker le calendrier localement pendant un moment
@@ -40,11 +80,14 @@ addEventListener('resize', () => {
 // temps à se mettre à jour et cheh si je me trompe d'amphi)
 // (Aussi on stocke localement tout le temps et quand il a plus d'un certain
 // âge on va le rechercher sur internet et on le remplace discrètement)
-// fetch(`https://cors-anywhere.herokuapp.com/https://ade-outils.insa-lyon.fr/ADE-Cal:~${calendarId}`)
-// .then(response => response.text())
-Promise.resolve(localStorage.ade) // TODO tmp
+(
+    localStorage.ade ? Promise.resolve(localStorage.ade) // TODO tmp
+    : fetch(`https://cors-anywhere.herokuapp.com/https://ade-outils.insa-lyon.fr/ADE-Cal:~${calendarId}`)
+    .then(response => response.text())
+)
 .then(parseIcal)
 .then(events => {
+    events.sort((e1, e2) => e1.start.getTime() - e2.start.getTime()); // TODO tmp
     calendar.events = events;
     calendar.currDate = new Date(Date.now() + 14 * 86400e3); // TODO tmp
     calendar.rebuild();

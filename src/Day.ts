@@ -30,6 +30,8 @@ export default class Day {
         // Ajout
         this.events.push(event);
         this.element.content.appendChild(eventEl);
+
+        // TODO: jour même en bleu
     }
 
     isEmpty(): boolean {

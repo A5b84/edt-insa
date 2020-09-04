@@ -11,13 +11,14 @@ export default class EventTemplate extends ElementTemplate {
         super('event-template');
 
         this.element = this.getEl<'div'>('.event');
+        this.element.style.backgroundColor = event.getColor();
 
         // Infos
         if (event.hasDescriptionInfo()) {
             this.getEl('.event-name').innerText = <string> event.getName();
-            this.getEl('.event-start').innerText = formatTime(event.start);
-            this.getEl('.event-end').innerText = formatTime(event.end);
-            this.getEl('.event-duration').innerText = formatTime(event.end.getTime() - event.start.getTime());
+            this.getEl('.event-start').innerText = formatTime(event.start, true);
+            this.getEl('.event-end').innerText = formatTime(event.end, true);
+            this.getEl('.event-duration').innerText = formatTime(event.end.getTime() - event.start.getTime(), false);
             this.getEl('.event-type').innerText = <string> event.getType();
             this.getEl('.event-group').innerText = <string> event.getGroup();
 
@@ -57,7 +58,7 @@ export default class EventTemplate extends ElementTemplate {
 
 
 
-function formatTime(date: Date | number) {
+function formatTime(date: Date | number, full: boolean) {
     var hours: number, minutes: number;
 
     if (date instanceof Date) {
@@ -68,5 +69,12 @@ function formatTime(date: Date | number) {
         minutes = (date % 3600e3 / 60e3) | 0;
     }
 
-    return `${hours}h${minutes < 10 ? '0' + minutes : minutes}`;
+    var s = `${hours}h`;
+
+    if (minutes !== 0 || full) {
+        if (minutes < 10) s += '0' + minutes;
+        else s += minutes;
+    }
+
+    return s;
 }

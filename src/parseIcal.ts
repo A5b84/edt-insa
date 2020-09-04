@@ -11,29 +11,29 @@ export function parseIcal(ics: string): VEvent[] {
     for (var i = 1; i < events.length; i++) {
         try {
             // Création de l'évènement
-            const lines = events[i].split('\n');
-    
+            const lines = events[i].split(/\r?\n/);
+
             var start: Date | null = null;
             var end: Date | null = null;
             var summary: string | null = null;
             var location: string | null = null;
             var description: string | null = null;
-    
+
             for (const line of lines) {
                 const colonIndex = line.indexOf(':');
                 if (colonIndex < 0) continue;
-    
+
                 switch (line.slice(0, colonIndex)) {
                 case 'DTSTART':
                     if (start) break;
                     start = toValidDate(line.slice(colonIndex + 1));
                     break;
-    
+
                 case 'DTEND':
                     if (end) break;
                     end = toValidDate(line.slice(colonIndex + 1));
                     break;
-    
+
                 case 'LOCATION':
                     if (location) break;
                     location = line.slice(colonIndex + 1);
@@ -43,7 +43,7 @@ export function parseIcal(ics: string): VEvent[] {
                     if (summary) break;
                     summary = line.slice(colonIndex + 1);
                     break;
-    
+
                 case 'DESCRIPTION':
                     if (description) break;
                     description = line.slice(colonIndex + 1)

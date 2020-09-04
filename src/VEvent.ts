@@ -99,4 +99,61 @@ export default class VEvent {
     getGroup(): string | null { return this.getNthMatch(5); }
     getPerson(): string | null { return this.getNthMatch(6); }
 
+
+
+    getColor(): string {
+        // TODO choisir une méthode pour la couleur
+
+        // Fixe
+        if (COLOR_MAP[this.getSubject() || '']) return COLOR_MAP[this.getSubject() || ''];
+
+        // Random
+        return COLORS[(Math.random() * COLORS.length) | 0];
+
+        // Hash
+        // const s = this.getSubject() || this.summary.replace(/:.+$/m, '');
+        // return COLORS[(toHashCode(s) % COLORS.length + COLORS.length) % COLORS.length];
+
+        // Arc-en-ciel
+        // return COLORS[i++ % COLORS.length];
+    }
+
 }
+
+
+
+/** Copié de https://stackoverflow.com/a/7616484 */
+function toHashCode(s: string): number {
+    var hash = 0;
+    for (var i = 0; i < s.length; i++) {
+        hash = (hash << 5) - hash + s.charCodeAt(i);
+        hash |= 0;
+    }
+    return hash;
+}
+
+// const COLORS = [ // Copié de https://jsfiddle.net/shanfan/ojgp5718/
+//     "#fbb735", "#e98931", "#eb403b", "#b32E37", "#6c2a6a",
+//     "#5c4399", "#274389", "#1f5ea8", "#227fb0", "#2ab0c5",
+//     "#39c0b3"
+// ];
+var i = 0;
+const COLORS = [
+    'hsl(0 67% 50%)', 'hsl(15 72% 50%)', 'hsl(30 75% 50%)', 'hsl(45 75% 50%)',
+    'hsl(60 75% 45%)', 'hsl(75 80% 42%)', 'hsl(90 75% 42%)', 'hsl(105 70% 43%)',
+    'hsl(120 69% 42%)', 'hsl(135 72% 45%)', 'hsl(150 75% 45%)', 'hsl(165 80% 44%)',
+    'hsl(180 80% 45%)', 'hsl(195 80% 48%)', 'hsl(210 70% 50%)', 'hsl(225 65% 50%)',
+    'hsl(240 62% 52%)', 'hsl(255 65% 55%)', 'hsl(270 65% 55%)', 'hsl(285 65% 55%)',
+    'hsl(300 62% 57%)', 'hsl(315 67% 55%)', 'hsl(330 70% 55%)', 'hsl(345 75% 55%)',
+];
+
+const COLOR_MAP: { [key: string]: string } = {
+    'PC-S3-CH-ACEMP': 'hsl(195 80% 48%)',
+    'PC-S3-CSS-P': 'hsl(30 75% 50%)',
+    'PC-S3-PH-ACP': 'hsl(150 75% 45%)',
+    'PC-S3-MA-P': 'hsl(0 67% 50%)',
+    'PC-S3-MG-ACEMP': 'hsl(270 65% 55%)',
+    'PC-S3-PR-TF': 'hsl(45 75% 50%)',
+    'PC-S3-IF-ACP': 'hsl(300 62% 57%)',
+    'PC-S3-CO-TF': 'hsl(45 75% 50%)'
+};
