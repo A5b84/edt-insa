@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>EDT INSA</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="./favicon.png">
     <!-- Water.css (https://github.com/kognise/water.css) -->
     <!-- TODO mode jour/nuit configurable -->
     <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/dark.min.css"> -->
@@ -23,18 +24,15 @@
         <button id="next-week-btn" class="material-icons">navigate_next</button>
     </div>
 
-    <div id="content">
-    </div>
-
-    <!-- Modèles -->
-    <!-- Calendrier -->
-    <template id="calendar-template">
+    <div id="calendar">
         <div class="hours"></div>
         <div class="days">
             <div class="day-names"></div>
             <div class="day-contents"></div>
         </div>
-    </template>
+    </div>
+
+    <!-- Modèles -->
 
     <!-- Journée -->
     <template id="day-template">

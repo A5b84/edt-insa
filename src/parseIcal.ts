@@ -4,7 +4,9 @@ import VEvent from './VEvent';
  * marcher les librairies :'( */
 export function parseIcal(ics: string): VEvent[] {
     // Préparatifs
-    ics = ics.replace(/\r?\n +/gm, ''); // retours à la ligne inutiles
+    ics = ics.replace(/\r?\n +/gm, '') // Retours à la ligne inutiles
+    .replace(/Physique:électromagnétisme-ondes/g, 'Physique\u00a0: électromagnétisme - ondes')
+    //      Trucs mal formatés
 
     const events = ics.split(/(?:\r?\nEND:VEVENT)?\r?\nBEGIN:VEVENT\r?\n/gm);
     const result = [];

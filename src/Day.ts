@@ -1,10 +1,12 @@
-import DayTemplate from './templates/DayTemplate';
 import { toTitleCase } from './Utils';
 import VEvent from './VEvent';
+import ElementTemplate from './templates/ElementTemplate';
 
-export default class Day {
+export default class Day extends ElementTemplate {
 
-    readonly element: DayTemplate;
+    readonly name: HTMLDivElement;
+    readonly content: HTMLDivElement;
+
     protected start: Date = new Date();
     protected end: Date = new Date(Date.now() + 7200e3);
     protected events: VEvent[] = [];
@@ -12,7 +14,10 @@ export default class Day {
 
 
     constructor() {
-        this.element = new DayTemplate();
+        super('day-template');
+
+        this.name = this.getEl<'div'>('.day-name');
+        this.content = this.getEl<'div'>('.day-content');
     }
 
 
@@ -29,31 +34,33 @@ export default class Day {
 
         // Ajout
         this.events.push(event);
-        this.element.content.appendChild(eventEl);
+        this.content.appendChild(eventEl);
 
         // TODO: jour même en bleu
     }
 
     isEmpty(): boolean {
-        return this.element.content.childElementCount === 0;
+        return this.content.childElementCount === 0;
     }
 
     clear() {
         this.events = [];
-        const content = this.element.content;
+        const content = this.content;
         while (content.childElementCount > 0) {
             content.firstElementChild?.remove();
         }
     }
 
     setVisible(visibility: boolean): void {
-        this.element.element.style.display = visibility ? '' : 'none';
+        this.content.style.display
+            = this.name.style.display
+            = (visibility ? '' : 'none');
     }
 
     setBounds(start: number, end: number) {
         this.start = new Date(start);
         this.end = new Date(end);
-        this.element.name.innerText = toTitleCase(
+        this.name.innerText = toTitleCase(
             this.start.toLocaleString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' })
         );
         // TODO déplacer ça dans Calendar

@@ -4,21 +4,29 @@ import VEvent from './VEvent';
 
 export default class Calendar {
 
-    protected readonly element: HTMLElement;
+    readonly element: HTMLElement;
+    readonly hours: HTMLDivElement;
+    readonly dayNames: HTMLDivElement;
+    readonly dayContents: HTMLDivElement;
+
     protected days: Day[] = new Array(7).fill(0).map(() => new Day());
 
+    /** Date dans la semaine à afficher */
     currDate: Date = new Date();
     events: VEvent[] = [];
-    /** Date dans la semaine à afficher */
 
 
 
     constructor(element: HTMLElement) {
         this.element = element;
+        this.hours = <HTMLDivElement> element.querySelector('.hours');
+        this.dayNames = <HTMLDivElement> element.querySelector('.day-names');
+        this.dayContents = <HTMLDivElement> element.querySelector('.day-contents');
 
         // Ajout des jours
         for (const day of this.days) {
-            element.appendChild(day.element.fragment);
+            this.dayNames.appendChild(day.name);
+            this.dayContents.appendChild(day.content);
         }
     }
 
@@ -53,8 +61,8 @@ export default class Calendar {
         }
 
         // Début/fin des jours + reset
-        dayStart = dayStart ? floorHours(dayStart) : 10;
-        dayEnd = dayEnd ? ceilHours(dayEnd) : 14;
+        dayStart = dayStart ? floorHours(dayStart) : 9.75;
+        dayEnd = dayEnd ? ceilHours(dayEnd) : 14.25;
         this.element.style.setProperty('--day-start', '' + dayStart);
         this.element.style.setProperty('--day-end', '' + dayEnd);
         this.element.style.setProperty('--day-start-mod-1', '' + dayStart % 1);
@@ -68,6 +76,19 @@ export default class Calendar {
             );
             //      +2 parce que 'weekStart' c'est un samedi
             //      et i = 0 -> lundi
+        }
+
+        // Heures à gauche
+        while (this.hours.childElementCount) {
+            this.hours.firstElementChild?.remove();
+        }
+
+        const ceilededDayEnd = Math.ceil(dayEnd);
+        for (var i = Math.ceil(dayStart); i < ceilededDayEnd; i++) {
+            const el = document.createElement('span');
+            el.innerText = `${i}h`;
+            el.style.setProperty('--hours', '' + i);
+            this.hours.appendChild(el);
         }
 
         // Ajout des évènements aux jours
@@ -89,7 +110,7 @@ export default class Calendar {
         }
 
         for (; i > 4; i--) {
-            // Reste des éléments visibles
+            // Reste des jours visibles
             this.days[i].setVisible(true);
         }
     }

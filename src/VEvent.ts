@@ -12,8 +12,6 @@ import EventTemplate from './templates/EventTemplate';
  * 6. Prof (pas toujours précisé)
  */
 const DESCRIPTION_EXP = /^\n\[(.+):(.+)\] (.+)\n\((.*)\)\n\1:\2::(.+)\n(?:([\s\S]+)\n)?\(Exporté le:/;
-// Version après traitement
-// const DESCRIPTION_EXP = /\[(.+):(.+)\] (.+)\\n\1:\2::(047s3(\+048s3)?|Ls3)(?:\\n.+)?/
 
 
 

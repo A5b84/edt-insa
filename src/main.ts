@@ -1,5 +1,5 @@
-import { parseIcal } from './parseIcal';
 import Calendar from './Calendar';
+import { parseIcal } from './parseIcal';
 
 
 
@@ -7,9 +7,9 @@ const homeBtn = <HTMLButtonElement> document.getElementById('home-btn');
 const dateInput = <HTMLInputElement> document.getElementById('date-input');
 const previousWeekBtn = <HTMLButtonElement> document.getElementById('previous-week-btn');
 const nextWeekBtn = <HTMLButtonElement> document.getElementById('next-week-btn');
-const content = <HTMLDivElement> document.getElementById('content');
+const calendarEl = <HTMLDivElement> document.getElementById('calendar');
 
-const calendar: Calendar = new Calendar(content);
+const calendar: Calendar = new Calendar(calendarEl);
 
 
 
