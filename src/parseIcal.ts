@@ -71,7 +71,7 @@ export function parseIcal(ics: string): VEvent[] {
 
 /** Renvoie la date correspondant à la valeur entrée
  * https://tools.ietf.org/html/rfc5545#section-3.3.5 */
- function toValidDate(s: string): Date | null {
+function toValidDate(s: string): Date | null {
     const m = s.match(/(\d{4})(\d\d)(\d\d)T(\d\d)(\d\d)(\d\d)(Z|)/);
     if (!m) return null;
     const date = new Date(`${m[1]}/${m[2]}/${m[3]} ${m[4]}:${m[5]}:${m[6]}${m[7]}`);

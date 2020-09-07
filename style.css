@@ -1,17 +1,12 @@
 /* Variables */
 :root {
     --border-color: #d8d8d8;
+    --hour-size: 3.825rem;
 }
 
 
-
-html {
-    height: 100%; /* TODO enlever */
-    display: flex;
-}
 
 body {
-    flex-grow: 1; /* TODO enlever */
     max-width: none;
     padding: 0;
     margin: 2rem 4rem;
@@ -53,13 +48,15 @@ button, input, select, textarea {
 
 #content {
     display: flex;
-    height: 100%; /* TODO enlever */
 
     text-align: center;
+
+    /* Variables remplacées dans le code */
+    --day-start: 10;
+    --day-start: 14;
 }
 
 .day {
-    display: flex;
     flex-direction: column;
     width: 100%;
 }
@@ -76,11 +73,21 @@ button, input, select, textarea {
 }
 
 .day-content {
-    flex-grow: 1;
-    margin-top: .75rem;
+    height: calc((var(--day-end) - var(--day-start)) * var(--hour-size));
     position: relative;
 
     color: white;
+    background: linear-gradient(
+        #e4e4e4 2px,
+        transparent 2px,
+        transparent calc(var(--hour-size) / 2),
+        #e4e4e4 calc(var(--hour-size) / 2),
+        #e4e4e4 calc(var(--hour-size) / 2 + 1px),
+        transparent calc(var(--hour-size) / 2 + 1px)
+    );
+    background-clip: border-box;
+    background-size: 100% var(--hour-size);
+    background-position: 0 calc(-1 * var(--day-start-mod-1) * var(--hour-size));
 }
 
 .day-content a {
@@ -92,16 +99,17 @@ button, input, select, textarea {
     flex-direction: column;
     justify-content: center;
     box-sizing: border-box;
-    width: calc(100% - 2px);
-    height: calc((var(--end) - var(--start)) * 100% - 2px);
+    width: 100%;
+    height: calc((var(--end) - var(--start)) * 100% - 1px);
     padding: .25rem .5rem;
     border-radius: .333rem;
 
     position: absolute;
-    top: calc(var(--start) * 100%);
-    left: 1px; /* Pour centrer */
+    top: calc(var(--start) * 100% + 1px);
+    left: 1px; /* TODO enlever/remettre selon comme y faut */
 
-    font-size: .8rem;
+    font-size: .75rem; /* TODO à modifier pour le mod simple */
+    line-height: 1;
 }
 
 .event.overflowing:not(:hover) {
@@ -125,6 +133,7 @@ button, input, select, textarea {
 }
 
 .event-name {
+    line-height: normal; /* line-height: 1 marche pô avec overflow-x */
     font-size: 1.05rem;
 }
 

@@ -1,14 +1,11 @@
-import VEvent from './VEvent';
 import Day from './Day';
+import { getTimeInHours as getTimeInHours } from './Utils';
+import VEvent from './VEvent';
 
 export default class Calendar {
 
     protected readonly element: HTMLElement;
-    protected days: Day[] = [
-        new Day('Lundi'), new Day('Mardi'), new Day('Mercredi'),
-        new Day('Jeudi'), new Day('Vendredi'), new Day('Samedi'),
-        new Day('Dimanche')
-    ];
+    protected days: Day[] = new Array(7).fill(0).map(() => new Day());
 
     currDate: Date = new Date();
     events: VEvent[] = [];
@@ -48,19 +45,20 @@ export default class Calendar {
                 weekEvents.push(event);
 
                 // Heures de début/fin de journée
-                if (!dayStart || event.start.getHours() < dayStart) {
-                    dayStart = event.start.getHours();
-                }
-                const ceiledEndHours = getCeiledHours(event.end);
-                if (!dayEnd || ceiledEndHours > dayEnd) {
-                    dayEnd = ceiledEndHours;
-                }
+                const eventStart = getTimeInHours(event.start);
+                const eventEnd = getTimeInHours(event.end);
+                if (dayStart === undefined || eventStart < dayStart) dayStart = eventStart;
+                if (dayEnd === undefined || eventEnd > dayEnd) dayEnd = eventEnd;
             }
         }
 
         // Début/fin des jours + reset
-        dayStart = dayStart || 10;
-        dayEnd = dayEnd || 14;
+        dayStart = dayStart ? floorHours(dayStart) : 10;
+        dayEnd = dayEnd ? ceilHours(dayEnd) : 14;
+        this.element.style.setProperty('--day-start', '' + dayStart);
+        this.element.style.setProperty('--day-end', '' + dayEnd);
+        this.element.style.setProperty('--day-start-mod-1', '' + dayStart % 1);
+
         for (var i = 0; i < this.days.length; i++) {
             const day = this.days[i];
             day.clear();
@@ -69,6 +67,7 @@ export default class Calendar {
                 weekStart + (i + 2) * 86400e3 + dayEnd * 3600e3
             );
             //      +2 parce que 'weekStart' c'est un samedi
+            //      et i = 0 -> lundi
         }
 
         // Ajout des évènements aux jours
@@ -105,8 +104,21 @@ export default class Calendar {
 
 
 
-/** Renvoie la première heure pile ([0, 24]) après la date (inclue),
- * ex: 12:34 -> 12, 18:00 -> 18 */
-function getCeiledHours(date: Date): number {
-    return date.getHours() + (date.getMinutes() > 0 ? 1 : 0);
+/** Temps en heure entre les valeurs possibles pour arrondir en heure */
+const ROUNDED_HOURS_STEP = .25;
+
+function floorHours(hours: number) {
+    const remainder = hours % ROUNDED_HOURS_STEP;
+    hours -= remainder; // Valeur arrondie précédente
+    return remainder < ROUNDED_HOURS_STEP / 2
+        ? hours - ROUNDED_HOURS_STEP // Trop près -> on décale encore
+        : hours; // Sinon c'est bon
+}
+
+function ceilHours(hours: number) {
+    const remainder = hours % ROUNDED_HOURS_STEP;
+    hours += ROUNDED_HOURS_STEP - remainder; // Valeur arrondie suivante
+    return remainder > ROUNDED_HOURS_STEP / 2
+        ? hours + ROUNDED_HOURS_STEP // Trop près -> on décale encore
+        : hours; // Sinon c'est bon
 }

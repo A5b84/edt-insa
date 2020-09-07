@@ -6,6 +6,7 @@
     <title>EDT INSA</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Water.css (https://github.com/kognise/water.css) -->
+    <!-- TODO mode jour/nuit configurable -->
     <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/dark.min.css"> -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/light.min.css">
     <!-- Material Design Icons (https://material.io/resources/icons/) -->
@@ -23,16 +24,22 @@
     </div>
 
     <div id="content">
-
     </div>
 
     <!-- Modèles -->
+    <!-- Calendrier -->
+    <template id="calendar-template">
+        <div class="hours"></div>
+        <div class="days">
+            <div class="day-names"></div>
+            <div class="day-contents"></div>
+        </div>
+    </template>
+
     <!-- Journée -->
     <template id="day-template">
-        <div class="day">
-            <div class="day-name"></div>
-            <div class="day-content"></div>
-        </div>
+        <div class="day-name"></div>
+        <div class="day-content"></div>
     </template>
 
     <!-- Événement -->

@@ -1,4 +1,5 @@
 import DayTemplate from './templates/DayTemplate';
+import { toTitleCase } from './Utils';
 import VEvent from './VEvent';
 
 export default class Day {
@@ -10,7 +11,7 @@ export default class Day {
 
 
 
-    constructor(name: string) {
+    constructor() {
         this.element = new DayTemplate();
     }
 
@@ -23,7 +24,6 @@ export default class Day {
         eventEl.remove();
 
         // Position
-        // TODO remettre clamped
         eventEl.style.setProperty('--start', '' + this.getProgress(event.start));
         eventEl.style.setProperty('--end', '' + this.getProgress(event.end));
 
@@ -56,6 +56,7 @@ export default class Day {
         this.element.name.innerText = toTitleCase(
             this.start.toLocaleString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' })
         );
+        // TODO déplacer ça dans Calendar
     }
 
     updateEventsOverflow(): void {
@@ -71,10 +72,4 @@ export default class Day {
         return (date.getTime() - this.start.getTime()) / (this.end.getTime() - this.start.getTime());
     }
 
-}
-
-
-
-function toTitleCase(s: string): string {
-    return s.replace(/(?:^| )\S/gm, char => char.toUpperCase());
 }

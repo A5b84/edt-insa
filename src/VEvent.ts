@@ -102,41 +102,17 @@ export default class VEvent {
 
 
     getColor(): string {
-        // TODO choisir une méthode pour la couleur
-
         // Fixe
         if (COLOR_MAP[this.getSubject() || '']) return COLOR_MAP[this.getSubject() || ''];
 
         // Random
         return COLORS[(Math.random() * COLORS.length) | 0];
-
-        // Hash
-        // const s = this.getSubject() || this.summary.replace(/:.+$/m, '');
-        // return COLORS[(toHashCode(s) % COLORS.length + COLORS.length) % COLORS.length];
-
-        // Arc-en-ciel
-        // return COLORS[i++ % COLORS.length];
     }
 
 }
 
 
 
-/** Copié de https://stackoverflow.com/a/7616484 */
-function toHashCode(s: string): number {
-    var hash = 0;
-    for (var i = 0; i < s.length; i++) {
-        hash = (hash << 5) - hash + s.charCodeAt(i);
-        hash |= 0;
-    }
-    return hash;
-}
-
-// const COLORS = [ // Copié de https://jsfiddle.net/shanfan/ojgp5718/
-//     "#fbb735", "#e98931", "#eb403b", "#b32E37", "#6c2a6a",
-//     "#5c4399", "#274389", "#1f5ea8", "#227fb0", "#2ab0c5",
-//     "#39c0b3"
-// ];
 var i = 0;
 const COLORS = [
     'hsl(0 67% 50%)', 'hsl(15 72% 50%)', 'hsl(30 75% 50%)', 'hsl(45 75% 50%)',

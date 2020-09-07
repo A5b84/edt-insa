@@ -84,6 +84,7 @@ nextWeekBtn.addEventListener('click', () => moveDateRelative(1));
     localStorage.ade ? Promise.resolve(localStorage.ade) // TODO tmp
     : fetch(`https://cors-anywhere.herokuapp.com/https://ade-outils.insa-lyon.fr/ADE-Cal:~${calendarId}`)
     .then(response => response.text())
+    .then(ical => localStorage.ade = ical)
 )
 .then(parseIcal)
 .then(events => {

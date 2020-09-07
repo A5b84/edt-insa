@@ -1,5 +1,6 @@
-import ElementTemplate from './ElementTemplate';
+import { formatTime } from '../Utils';
 import VEvent from '../VEvent';
+import ElementTemplate from './ElementTemplate';
 
 export default class EventTemplate extends ElementTemplate {
 
@@ -54,27 +55,4 @@ export default class EventTemplate extends ElementTemplate {
         );
     }
 
-}
-
-
-
-function formatTime(date: Date | number, full: boolean) {
-    var hours: number, minutes: number;
-
-    if (date instanceof Date) {
-        hours = date.getHours();
-        minutes = date.getMinutes();
-    } else {
-        hours = (date % 86400e3 / 3600e3) | 0;
-        minutes = (date % 3600e3 / 60e3) | 0;
-    }
-
-    var s = `${hours}h`;
-
-    if (minutes !== 0 || full) {
-        if (minutes < 10) s += '0' + minutes;
-        else s += minutes;
-    }
-
-    return s;
 }
