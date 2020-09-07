@@ -28,6 +28,8 @@ export default class Calendar {
             this.dayNames.appendChild(day.name);
             this.dayContents.appendChild(day.content);
         }
+
+        this.rebuild();
     }
 
 

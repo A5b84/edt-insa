@@ -136,8 +136,8 @@ button, input, select, textarea {
     position: relative;
 }
 
-.day-content a {
-    color: inherit;
+.day-content.today {
+    background-color: hsl(195deg 75% 67% / 0.25);
 }
 
 
@@ -185,6 +185,10 @@ button, input, select, textarea {
     overflow-x: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.event a {
+    color: inherit;
 }
 
 .event .material-icons {

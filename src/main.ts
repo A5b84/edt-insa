@@ -31,6 +31,30 @@ function moveDateRelative(weeks: number) {
 
 
 
+addEventListener('resize', () => {
+    if (calendar) calendar.updateEventsOverflow();
+});
+
+addEventListener('keydown', e => {
+    // Raccourics
+    if (e.target instanceof HTMLInputElement
+            || e.ctrlKey || e.altKey || e.shiftKey) {
+        return;
+    }
+    if (e.key === 'ArrowLeft') previousWeekBtn.click();
+    else if (e.key === 'ArrowRight') nextWeekBtn.click();
+});
+
+homeBtn.addEventListener('click', () => setDate(new Date()));
+
+dateInput.valueAsDate = calendar.currDate;
+dateInput.addEventListener('change', () => setDate(getDate()));
+
+previousWeekBtn.addEventListener('click', () => moveDateRelative(-1));
+nextWeekBtn.addEventListener('click', () => moveDateRelative(1));
+
+
+
 // Récupération de l'id du calendrier
 const search = new URLSearchParams(location.search);
 const calendarId = search.get('cal');
@@ -48,30 +72,6 @@ if (!calendarId) {
     }
     location.search += cal;
 }
-
-
-
-addEventListener('resize', () => {
-    if (calendar) calendar.updateEventsOverflow();
-});
-
-addEventListener('keydown', e => {
-    // Raccourics
-    if (e.target instanceof HTMLInputElement
-            || e.ctrlKey || e.altKey || e.shiftKey) {
-        return;
-    }
-    if (e.key === 'ArrowLeft') previousWeekBtn.click();
-    else if (e.key === 'ArrowRight') nextWeekBtn.click();
-});
-
-homeBtn.addEventListener('click', () => setDate(new Date()));
-
-dateInput.valueAsDate = new Date();
-dateInput.addEventListener('change', () => setDate(getDate()));
-
-previousWeekBtn.addEventListener('click', () => moveDateRelative(-1));
-nextWeekBtn.addEventListener('click', () => moveDateRelative(1));
 
 
 

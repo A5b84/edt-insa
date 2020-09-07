@@ -1,6 +1,6 @@
-import { toTitleCase } from './Utils';
-import VEvent from './VEvent';
 import ElementTemplate from './templates/ElementTemplate';
+import { isToday, toTitleCase } from './Utils';
+import VEvent from './VEvent';
 
 export default class Day extends ElementTemplate {
 
@@ -35,8 +35,6 @@ export default class Day extends ElementTemplate {
         // Ajout
         this.events.push(event);
         this.content.appendChild(eventEl);
-
-        // TODO: jour même en bleu
     }
 
     isEmpty(): boolean {
@@ -63,7 +61,8 @@ export default class Day extends ElementTemplate {
         this.name.innerText = toTitleCase(
             this.start.toLocaleString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' })
         );
-        // TODO déplacer ça dans Calendar
+
+        this.content.classList.toggle('today', isToday(this.start));
     }
 
     updateEventsOverflow(): void {
