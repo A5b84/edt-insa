@@ -2,13 +2,13 @@ import VEvent from './VEvent';
 
 /** Fonction ghetto pour lire un fichier ICS (parce j'arrive pas à faire
  * marcher les librairies :'( */
-export function parseIcal(ics: string): VEvent[] {
+export function parseIcal(ical: string): VEvent[] {
     // Préparatifs
-    ics = ics.replace(/\r?\n +/gm, '') // Retours à la ligne inutiles
+    ical = ical.replace(/\r?\n +/gm, '') // Retours à la ligne inutiles
     .replace(/Physique:électromagnétisme-ondes/g, 'Physique\u00a0: électromagnétisme - ondes')
     //      Trucs mal formatés
 
-    const events = ics.split(/(?:\r?\nEND:VEVENT)?\r?\nBEGIN:VEVENT\r?\n/gm);
+    const events = ical.split(/(?:\r?\nEND:VEVENT)?\r?\nBEGIN:VEVENT\r?\n/gm);
     const result = [];
     for (var i = 1; i < events.length; i++) {
         try {
