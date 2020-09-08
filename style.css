@@ -1,7 +1,9 @@
-/* Constantes */
 :root {
-    --background-color-alt: #f6f6f6;
+    /* Constantes */
     --border-color: #ddd;
+    --hour-line-color: #ccc;
+    --half-hour-line-color: #e4e4e4;
+    --calendar-shadow-color: #0003;
     --hour-size: 4.2rem;
     --calendar-border-radius: 1rem;
 
@@ -10,46 +12,80 @@
     --day-name-padding: .5rem;
 }
 
+:root:not(.dark) {
+    /* Constantes de Water.css */
+    --background: #f6f6f6;
+    --text-main: #567;
+    --form-text: #345;
+}
+
+:root.dark {
+    --border-color: #000;
+    --hour-line-color: #000;
+    --half-hour-line-color: #0004;
+    --calendar-shadow-color: #0008;
+}
+
 
 
 body {
     max-width: 100rem;
     padding: 0 4rem;
     margin: 2rem auto;
+}
 
-    color: #567;
+body > :not(:first-child) {
+    margin-top: 1rem;
 }
 
 /* Remplacements de trucs de water.css */
 button, input, select, textarea {
-    color: #345;
-    background-color: var(--background-color-alt);
-}
-
-
-
-/* Boutons en haut */
-#controls {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1rem;
-}
-
-#controls > * {
+    box-sizing: border-box;
+    height: 2.5rem;
     border: 1px solid var(--border-color);
     border-radius: 100vmax; /* Coins arrondis et pas étirés */
     margin: 0;
+
+    text-align: center;
 }
 
-#controls > :not(:last-child) {
+button.material-icons {
+    width: 2.5rem;
+    padding: 0;
+}
+
+input[type=date] {
+    /* Trucs pour essayer de centrer le texte */
+    padding-left: 0;
+}
+
+
+
+/* Boutons en haut et en bas */
+.controls {
+    display: flex;
+    max-width: 48rem;
+    margin-left: auto;
+    margin-right: auto;
+
+    align-items: center;
+    justify-content: center;
+}
+
+.controls > :not(:last-child) {
     margin-right: .5rem;
 }
 
-#controls > button {
-    width: 2.5rem;
-    height: 2.5rem;
-    padding: 0;
+#theme-btn::before {
+    content: 'wb_sunny';
+}
+
+.dark #theme-btn::before {
+    content: 'nights_stay';
+}
+
+.fetching #force-refresh-btn {
+    animation: rotating 1.2s linear infinite;
 }
 
 
@@ -58,7 +94,7 @@ button, input, select, textarea {
 #calendar {
     display: flex;
     border-radius: var(--calendar-border-radius);
-    box-shadow: 0 0 4px #0003;
+    box-shadow: 0 0 4px var(--calendar-shadow-color);
 
     text-align: center;
 
@@ -69,8 +105,8 @@ button, input, select, textarea {
 }
 
 .hours, .day-names {
-    background-color: var(--background-color-alt);
-    box-shadow: 0 0 4px #0003;
+    background-color: var(--background);
+    box-shadow: 0 0 4px var(--calendar-shadow-color);
 }
 
 .hours {
@@ -121,9 +157,9 @@ button, input, select, textarea {
     height: calc((var(--day-end) - var(--day-start)) * var(--hour-size));
 
     background: linear-gradient(
-        #ccc 1px,
+        var(--hour-line-color) 1px,
         transparent 1px, calc(var(--hour-size) / 2),
-        #e4e4e4 calc(var(--hour-size) / 2), calc(var(--hour-size) / 2 + 1px),
+        var(--half-hour-line-color) calc(var(--hour-size) / 2), calc(var(--hour-size) / 2 + 1px),
         transparent calc(var(--hour-size) / 2 + 1px)
     );
     background-size: 100% var(--hour-size);
@@ -158,6 +194,10 @@ button, input, select, textarea {
 
     font-size: .8rem;
     line-height: 1.25;
+}
+
+.dark .event {
+    opacity: .9;
 }
 
 .event.overflowing:not(:hover) {
@@ -195,4 +235,11 @@ button, input, select, textarea {
     font-size: 1em;
     position: relative;
     top: .125em;
+}
+
+
+
+@keyframes rotating {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }

@@ -8,8 +8,7 @@
     <link rel="shortcut icon" href="./favicon.png">
     <!-- Water.css (https://github.com/kognise/water.css) -->
     <!-- TODO mode jour/nuit configurable -->
-    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/dark.min.css"> -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/light.min.css">
+    <link id="theme-stylesheet" rel="stylesheet" href="https://watercss.kognise.dev/dist/light.standalone.min.css">
     <!-- Material Design Icons (https://material.io/resources/icons/) -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="style.css">
@@ -17,7 +16,7 @@
 
 <body>
 
-    <div id="controls">
+    <div class="controls">
         <button id="home-btn" class="material-icons">home</button>
         <input id="date-input" type="date">
         <button id="previous-week-btn" class="material-icons">navigate_before</button>
@@ -30,6 +29,13 @@
             <div class="day-names"></div>
             <div class="day-contents"></div>
         </div>
+    </div>
+
+    <div class="controls">
+        <span id="fetch-date"></span>
+        <div style="flex-grow: 1;"></div>
+        <button id="theme-btn" class="material-icons" title="Thème"></button>
+        <button id="force-refresh-btn" class="material-icons" title="Actualiser">refresh</button>
     </div>
 
     <!-- Modèles -->

@@ -3,10 +3,8 @@ import VEvent from './VEvent';
 /** Fonction ghetto pour lire un fichier ICS (parce j'arrive pas à faire
  * marcher les librairies :'( */
 export function parseIcal(ical: string): VEvent[] {
-    // Préparatifs
+    // Préparatifs qui peuvent pas être mis dans VEvent pour opti
     ical = ical.replace(/\r?\n +/gm, '') // Retours à la ligne inutiles
-    .replace(/Physique:électromagnétisme-ondes/g, 'Physique\u00a0: électromagnétisme - ondes')
-    //      Trucs mal formatés
 
     const events = ical.split(/(?:\r?\nEND:VEVENT)?\r?\nBEGIN:VEVENT\r?\n/gm);
     const result = [];
@@ -49,6 +47,7 @@ export function parseIcal(ical: string): VEvent[] {
                 case 'DESCRIPTION':
                     if (description) break;
                     description = line.slice(colonIndex + 1)
+                    .replace(/\?STD[^\\]+\\n/, '') // Trucs Covid
                     .replace(/\\,/g, ',') // Virgules échappées
                     .replace(/(?:\\n)+/g, '\n') // Faux sauts de ligne
                     // .replace(/\(Exporté le:[^)]*\)/, '') // Date d'export

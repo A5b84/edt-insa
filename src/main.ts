@@ -4,18 +4,18 @@ import { parseIcal } from './parseIcal';
 
 
 
-// TODO bouton pour recharger sans le cache
-// TODO bouton pour changer de thème
-
-
-
 const MAX_CACHE_AGE = 6 * 3600e3;
+
+const themeStylesheet = <HTMLLinkElement> document.getElementById('theme-stylesheet');
 
 const homeBtn = <HTMLButtonElement> document.getElementById('home-btn');
 const dateInput = <HTMLInputElement> document.getElementById('date-input');
 const previousWeekBtn = <HTMLButtonElement> document.getElementById('previous-week-btn');
 const nextWeekBtn = <HTMLButtonElement> document.getElementById('next-week-btn');
 const calendarEl = <HTMLDivElement> document.getElementById('calendar');
+const fetchDateEl = <HTMLDivElement> document.getElementById('fetch-date');
+const themeBtn = <HTMLButtonElement> document.getElementById('theme-btn');
+const forceRefreshBtn = <HTMLButtonElement> document.getElementById('force-refresh-btn');
 
 const calendar: Calendar = new Calendar(calendarEl);
 (<any> window).calendar = calendar; // Variable globale accessible depuis la console
@@ -31,6 +31,30 @@ const cacheTimeKey = `adeCacheTime_${calendarId}`;
 function loadIcal(ical: string): void {
     calendar.events = parseIcal(ical);
     calendar.rebuild();
+
+    // Date de récupération
+    const cacheTime: number = +localStorage[cacheTimeKey];
+    if (isFinite(cacheTime)) {
+        const d = new Date(cacheTime);
+        fetchDateEl.innerText = `Récupéré le ${d.toLocaleDateString('fr-FR')} à ${d.toLocaleTimeString('fr-FR')}`;
+    }
+}
+
+function fetchIcal(): void {
+    forceRefreshBtn.disabled = true;
+    document.body.classList.add('fetching');
+
+    fetch(`https://cors-anywhere.herokuapp.com/https://ade-outils.insa-lyon.fr/ADE-Cal:~${calendarId}`)
+    .then(response => response.text())
+    .then(ical => {
+        localStorage[cacheKey] = pako.deflate(ical, { to: 'string' });
+        localStorage[cacheTimeKey] = Date.now();
+        loadIcal(ical);
+    })
+    .finally(() => {
+        forceRefreshBtn.disabled = false;
+        document.body.classList.remove('fetching');
+    });
 }
 
 
@@ -75,6 +99,25 @@ dateInput.addEventListener('change', () => setDate(getDate()));
 previousWeekBtn.addEventListener('click', () => moveDateRelative(-1));
 nextWeekBtn.addEventListener('click', () => moveDateRelative(1));
 
+themeBtn.addEventListener('click', () => {
+    const dark = document.documentElement.classList.toggle('dark');
+    if (dark) {
+        localStorage.theme = 'dark';
+        themeStylesheet.href = themeStylesheet.href.replace('light', 'dark');
+    } else {
+        delete localStorage.theme;
+        themeStylesheet.href = themeStylesheet.href.replace('dark', 'light');
+    }
+});
+
+if (localStorage.theme) themeBtn.click();
+
+forceRefreshBtn.addEventListener('click', () => {
+    delete localStorage[cacheKey];
+    delete localStorage[cacheTimeKey];
+    fetchIcal();
+});
+
 
 
 // Id du calendrier
@@ -112,11 +155,5 @@ if (localStorage[cacheKey]) {
 if (!localStorage[cacheKey]
         || !localStorage[cacheTimeKey]
         || Date.now() - +localStorage[cacheTimeKey] >= MAX_CACHE_AGE) {
-    fetch(`https://cors-anywhere.herokuapp.com/https://ade-outils.insa-lyon.fr/ADE-Cal:~${calendarId}`)
-    .then(response => response.text())
-    .then(ical => {
-        localStorage[cacheKey] = pako.deflate(ical, { to: 'string' });
-        localStorage[cacheTimeKey] = Date.now();
-        loadIcal(ical);
-    });
+    fetchIcal();
 }

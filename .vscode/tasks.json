@@ -13,10 +13,10 @@
             }
         },
         {
-            "label": "watchify",
+            "label": "browserify + tinyify",
             "type": "shell",
-            "command": "watchify src/main.ts -p tsify -t [ babelify --extensions .ts --presets [@babel/preset-env] ] -o build/bundle.js -v",
+            "command": "browserify src/main.ts -p tsify -p tinyify -t [ babelify --extensions .ts --presets [@babel/preset-env] ] -o build/bundle.js",
             "group": "build"
-        }
+        },
     ]
 }

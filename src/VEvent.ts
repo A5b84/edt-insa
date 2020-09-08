@@ -7,7 +7,7 @@ import EventTemplate from './templates/EventTemplate';
  * 1. Matière (Ex: PC-S3-IF-ACP)
  * 2. Type (Ex: TD, TP, CM, EV)
  * 3. Nom (Ex: Algorithmique et programmation 3)
- * 4. Détails (Ex: TP de synthèse, rarement précisé)
+ * 4. Détails (optionel (rarement précisé), ex: TP de synthèse)
  * 5. Groupe (Ex: 047s3)
  * 6. Prof (pas toujours précisé)
  */
@@ -82,6 +82,12 @@ export default class VEvent {
     protected matchDescriptionInfo() {
         if (this.descriptionMatch === undefined) {
             this.descriptionMatch = this.description.match(DESCRIPTION_EXP);
+
+            if (this.descriptionMatch) {
+                // Ajustements
+                this.descriptionMatch[1] = this.descriptionMatch[1]
+                .replace('Physique:électromagnétisme-ondes', 'Physique\u00a0: électromagnétisme - ondes')
+            }
         }
     }
 
