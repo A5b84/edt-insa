@@ -1,5 +1,5 @@
 import Day from './Day';
-import { getTimeInHours as getTimeInHours } from './Utils';
+import { getTimeInHours } from './Utils';
 import VEvent from './VEvent';
 
 export default class Calendar {
@@ -9,10 +9,10 @@ export default class Calendar {
     readonly dayNames: HTMLDivElement;
     readonly dayContents: HTMLDivElement;
 
-    protected days: Day[] = new Array(7).fill(0).map(() => new Day());
-
-    /** Date dans la semaine à afficher */
-    currDate: Date = new Date();
+    // Faut toujours au moins un jour visible par semaine (pour pas tout casser)
+    protected readonly days: Day[] = new Array(7).fill(0).map((_, i) => new Day(i < 5));
+    protected focusedDay: number;
+    protected currDate: Date;
     events: VEvent[] = [];
 
 
@@ -29,6 +29,11 @@ export default class Calendar {
             this.dayContents.appendChild(day.content);
         }
 
+        this.currDate = new Date(Date.now() - 7 * 86400e3);
+        this.focusedDay = getDayIndex(this.currDate);
+        //      ^ Valeurs temporaires modifiées dans setDate
+        this.setDate(new Date());
+
         this.rebuild();
     }
 
@@ -36,14 +41,7 @@ export default class Calendar {
 
     /** Recrée tous les trucs pour l'affichage */
     rebuild(): void {
-        const weekDay = (this.currDate.getDay() + 1) % 7;
-        //      Samedi = 0, dimanche = 1, ..., vendredi = 6
-        //      (Comme ça quand c'est samedi on affiche la semaine suivante)
-        //      (Problème : si y a des trucs le samedi ou le dimanche, faut
-        //      retourner à la semaine d'avant pour le voir)
-
-        // Début et fin de la semaine (samedi du coup)
-        const weekStart = this.currDate.setHours(0, 0, 0, 0) - weekDay * 86400e3;
+        const weekStart = getWeekStart(this.currDate);
         const weekEnd = weekStart + 86400e3 * 7;
 
         // On récupère les trucs de la semaine
@@ -73,18 +71,18 @@ export default class Calendar {
             const day = this.days[i];
             day.clear();
             day.setBounds(
-                weekStart + (i + 2) * 86400e3 + dayStart * 3600e3,
-                weekStart + (i + 2) * 86400e3 + dayEnd * 3600e3
+                weekStart + i * 86400e3 + dayStart * 3600e3,
+                weekStart + i * 86400e3 + dayEnd * 3600e3
             );
-            //      +2 parce que 'weekStart' c'est un samedi
-            //      et i = 0 -> lundi
         }
 
         // Heures à gauche
+        //      Enlèvement
         while (this.hours.childElementCount) {
             this.hours.firstElementChild?.remove();
         }
 
+        //      Ajout
         const ceilededDayEnd = Math.ceil(dayEnd);
         for (var i = Math.ceil(dayStart); i < ceilededDayEnd; i++) {
             const el = document.createElement('span');
@@ -95,27 +93,98 @@ export default class Calendar {
 
         // Ajout des évènements aux jours
         for (const event of weekEvents) {
-            const eventDay = (event.start.getDay() + 6) % 7;
-            //      Lundi = 0, mardi = 1, ..., dimanche = 6
-            //      (Comme ça c'est dans l'ordre normal)
+            const eventDay = getDayIndex(event.start);
             this.days[eventDay].addEvent(event);
         }
 
         // Visibilité des jours
-        for (var i = this.days.length - 1; i > 4; i--) {
-            // Masquage de samedi/dimanche si vides et rien à leur droite
-            if (this.days[i].isEmpty()) {
-                this.days[i].setVisible(false);
+        for (var i = this.days.length - 1; i >= 0; i--) {
+            // Masquage des jours vides avec rien à leur droite
+            const day = this.days[i];
+            if (day.isEmpty() && !day.alwaysVisible) {
+                day.setVisible(false);
             } else {
                 break;
             }
         }
 
-        for (; i > 4; i--) {
+        for (; i >= 0; i--) {
             // Reste des jours visibles
+            if (this.days[i].alwaysVisible) break;
+            //      ^ Toujours visible -> jamais de trucs masqués avant
+
             this.days[i].setVisible(true);
         }
+
+        // Fini
+        this.updateEventsOverflow();
     }
+
+
+
+    getDate(): Date {
+        return this.currDate;
+    }
+
+    setDate(date: Date, adjustToVisible: boolean = true): void {
+        const oldDate = this.currDate;
+        this.currDate = date;
+        if (!areSameWeek(oldDate, date)) this.rebuild();
+
+        this.setFocusedDay(getDayIndex(date));
+        if (adjustToVisible && !this.days[this.focusedDay].isVisible()) {
+            this.moveToNextVisibleDay();
+        }
+    }
+
+    protected setFocusedDay(index: number): void {
+        this.days[this.focusedDay].setFocused(false);
+        this.days[index].setFocused(true);
+        this.focusedDay = index;
+        this.currDate = new Date(getWeekStart(this.currDate) + index * 86400e3);
+    }
+
+    moveToNextVisibleDay(): void {
+        for (var i = this.focusedDay + 1; i < this.days.length; i++) {
+            if (this.days[i].isVisible()) {
+                this.setDate(
+                    new Date(this.currDate.getTime() + (i - this.focusedDay) * 86400e3)
+                );
+                return;
+            }
+        }
+
+        // Semaine suivante si plus rien de visible cette semaine
+        this.moveToWeekRelative(1);
+    }
+
+    moveToPreviousVisibleDay(): void {
+        for (var i = this.focusedDay - 1; i >= 0; i--) {
+            if (this.days[i].isVisible()) {
+                this.setDate(
+                    new Date(this.currDate.getTime() - (this.focusedDay - i) * 86400e3)
+                );
+                return;
+            }
+        }
+
+        // Semaine précédente
+        this.moveToWeekRelative(-1);
+    }
+
+    moveToWeekRelative(weeks: number): void {
+        this.setDate(
+            new Date(this.currDate.getTime() + weeks * 7 * 86400e3),
+            false
+        );
+
+        // Sélection du jour (plutôt que le jour que c'était déjà avant)
+        // (ie vendredi + moveToWeekRelative(1) = lundi)
+        if (weeks > 0) this.setFocusedDay(this.getFirstVisibleDay());
+        else this.setFocusedDay(this.getLastVisibleDay());
+    }
+
+
 
     updateEventsOverflow(): void {
         for (const day of this.days) {
@@ -123,6 +192,39 @@ export default class Calendar {
         }
     }
 
+
+
+    protected getFirstVisibleDay(): number {
+        for (var i = 0; i < this.days.length; i++) {
+            if (this.days[i].isVisible()) return i;
+        }
+        return 0;
+    }
+
+    protected getLastVisibleDay(): number {
+        for (var i = this.days.length - 1; i >= 0; i--) {
+            if (this.days[i].isVisible()) return i;
+        }
+        return this.days.length - 1;
+    }
+
+}
+
+
+
+/** Renvoie l'indice d'une date dans les jours du calendrier (Lundi = 0,
+ * mardi = 1, ..., dimanche = 6) */
+function getDayIndex(date: Date): number {
+    return (date.getDay() + 6) % 7;
+}
+
+/** Renvoie le début de la semaine d'une date (lundi matin à minuit) */
+function getWeekStart(date: Date): number {
+    return new Date(date).setHours(0, 0, 0, 0) - getDayIndex(date) * 86400e3;
+}
+
+function areSameWeek(d1: Date, d2: Date): boolean {
+    return getWeekStart(d1) === getWeekStart(d2);
 }
 
 

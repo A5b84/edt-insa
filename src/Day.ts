@@ -6,16 +6,19 @@ export default class Day extends ElementTemplate {
 
     readonly name: HTMLDivElement;
     readonly content: HTMLDivElement;
-
+    
     protected start: Date = new Date();
     protected end: Date = new Date(Date.now() + 7200e3);
     protected events: VEvent[] = [];
+    readonly alwaysVisible: boolean;
+    protected visible: boolean = true;
 
 
 
-    constructor() {
+    constructor(alwaysVisible: boolean) {
         super('day-template');
 
+        this.alwaysVisible = alwaysVisible;
         this.name = this.getEl<'div'>('.day-name');
         this.content = this.getEl<'div'>('.day-content');
     }
@@ -49,13 +52,19 @@ export default class Day extends ElementTemplate {
         }
     }
 
-    setVisible(visibility: boolean): void {
-        this.content.style.display
-            = this.name.style.display
-            = (visibility ? '' : 'none');
+    isVisible(): boolean {
+        return this.visible;
     }
 
-    setBounds(start: number, end: number) {
+    setVisible(visible: boolean): void {
+        if (this.alwaysVisible) return;
+        this.visible = visible;
+        this.content.style.display
+            = this.name.style.display
+            = (visible ? '' : 'none');
+    }
+
+    setBounds(start: number, end: number): void {
         this.start = new Date(start);
         this.end = new Date(end);
         this.name.innerText = toTitleCase(
@@ -63,6 +72,12 @@ export default class Day extends ElementTemplate {
         );
 
         this.content.classList.toggle('today', isToday(this.start));
+    }
+
+    setFocused(focused: boolean): void {
+        this.name.classList.toggle('focused-day', focused);
+        this.content.classList.toggle('focused-day', focused);
+        this.updateEventsOverflow();
     }
 
     updateEventsOverflow(): void {

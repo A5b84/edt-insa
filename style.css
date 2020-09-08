@@ -248,3 +248,26 @@ input[type=date] {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
+
+
+
+@media(max-width: 960px) {
+    body {
+        padding: 0 1rem;
+    }
+
+    .event-name {
+        font-size: 1rem;
+    }
+}
+
+@media(max-width: 640px) {
+    .day-name:not(.focused-day),
+    .day-content:not(.focused-day) {
+        display: none;
+    }
+
+    .day-content.today {
+        background: none;
+    }
+}

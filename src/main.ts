@@ -4,14 +4,18 @@ import { parseIcal } from './parseIcal';
 
 
 
+// TODO: redimensionner les jours quand on peut en voir qu'un seul à la fois
+
+
+
 const MAX_CACHE_AGE = 6 * 3600e3;
 
 const themeStylesheet = <HTMLLinkElement> document.getElementById('theme-stylesheet');
 
 const homeBtn = <HTMLButtonElement> document.getElementById('home-btn');
 const dateInput = <HTMLInputElement> document.getElementById('date-input');
-const previousWeekBtn = <HTMLButtonElement> document.getElementById('previous-week-btn');
-const nextWeekBtn = <HTMLButtonElement> document.getElementById('next-week-btn');
+const prevBtn = <HTMLButtonElement> document.getElementById('prev-btn');
+const nextBtn = <HTMLButtonElement> document.getElementById('next-btn');
 const calendarEl = <HTMLDivElement> document.getElementById('calendar');
 const fetchDateEl = <HTMLDivElement> document.getElementById('fetch-date');
 const themeBtn = <HTMLButtonElement> document.getElementById('theme-btn');
@@ -19,7 +23,6 @@ const forceRefreshBtn = <HTMLButtonElement> document.getElementById('force-refre
 
 const calendar: Calendar = new Calendar(calendarEl);
 (<any> window).calendar = calendar; // Variable globale accessible depuis la console
-calendar.currDate = new Date(Date.now() + 14 * 86400e3); // TODO tmp
 
 const search = new URLSearchParams(location.search);
 const calendarId = search.get('cal');
@@ -59,26 +62,46 @@ function fetchIcal(): void {
 
 
 
-function getDate(): Date {
+function getInputDate(): Date {
     return dateInput.valueAsDate || new Date();
+}
+
+/** Met la date du calendrier dans `dateInput` */
+function updateInputDate(): void {
+    // On peut pas juste faire 'dateInput.valueAsDate = calendar.getDate()'
+    // parce que ça utilise pas le fuseau horaire donc ça peut être décalé
+    const d = calendar.getDate();
+    var month = d.getMonth() + 1 + '';
+    var day = d.getDate() + '';
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+    dateInput.value = `${d.getFullYear()}-${month}-${day}`;
 }
 
 function setDate(date: Date): void {
     dateInput.valueAsDate = date; // Convertit les dates invalide en null
-    calendar.currDate = getDate();
-    calendar.rebuild();
+    calendar.setDate(getInputDate()); // -> getDate pour avoir une date valide
+    updateInputDate();
 }
 
-function moveDateRelative(weeks: number): void {
-    setDate(
-        new Date(getDate().getTime() + weeks * 7 * 86400e3)
-    );
+
+
+function isWeekLayout(): boolean {
+    return innerWidth > 640;
+}
+
+function timeButtonHandler(offset: -1 | 1): void {
+    if (isWeekLayout()) calendar.moveToWeekRelative(offset);
+    else if (offset > 0) calendar.moveToNextVisibleDay();
+    else calendar.moveToPreviousVisibleDay();
+
+    updateInputDate();
 }
 
 
 
 addEventListener('resize', () => {
-    if (calendar) calendar.updateEventsOverflow();
+    calendar.updateEventsOverflow();
 });
 
 addEventListener('keydown', e => {
@@ -87,17 +110,17 @@ addEventListener('keydown', e => {
             || e.ctrlKey || e.altKey || e.shiftKey) {
         return;
     }
-    if (e.key === 'ArrowLeft') previousWeekBtn.click();
-    else if (e.key === 'ArrowRight') nextWeekBtn.click();
+    if (e.key === 'ArrowLeft') prevBtn.click();
+    else if (e.key === 'ArrowRight') nextBtn.click();
 });
 
 homeBtn.addEventListener('click', () => setDate(new Date()));
 
-dateInput.valueAsDate = calendar.currDate;
-dateInput.addEventListener('change', () => setDate(getDate()));
+updateInputDate();
+dateInput.addEventListener('change', () => setDate(getInputDate()));
 
-previousWeekBtn.addEventListener('click', () => moveDateRelative(-1));
-nextWeekBtn.addEventListener('click', () => moveDateRelative(1));
+prevBtn.addEventListener('click', () => timeButtonHandler(-1));
+nextBtn.addEventListener('click', () => timeButtonHandler(1));
 
 themeBtn.addEventListener('click', () => {
     const dark = document.documentElement.classList.toggle('dark');
