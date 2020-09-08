@@ -146,7 +146,7 @@ forceRefreshBtn.addEventListener('click', () => {
 // Id du calendrier
 if (!calendarId) {
     // Pas de calendrier -> en demande un et modifie l'url
-    let cal = prompt('Entrez le lien d\'un calendrier');
+    let cal = prompt('Entrez le lien d\'un emploi du temps (disponible sur https://ade-outils.insa-lyon.fr/ADE-iCal)');
 
     if (!cal) throw new Error('Pas d\'url de calendrier');
 
