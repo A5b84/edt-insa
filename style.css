@@ -184,7 +184,9 @@ input[type=date] {
     justify-content: center;
     box-sizing: border-box;
     width: calc(100% - 2px);
-    height: calc((var(--end) - var(--start)) * 100% - 3px);
+    --height: calc((var(--end) - var(--start)) * 100% - 3px);
+    height: var(--height);
+    min-height: var(--height);
     padding: .25rem .5rem;
     border-radius: .333rem;
 
@@ -200,6 +202,11 @@ input[type=date] {
     opacity: .9;
 }
 
+.event:hover {
+    height: auto;
+    z-index: 2; /* Pour pas passer derrière les autres */
+}
+
 .event.overflowing:not(:hover) {
     justify-content: start;
     overflow: hidden;
@@ -207,8 +214,6 @@ input[type=date] {
 }
 
 .event.overflowing:hover {
-    height: auto;
-    z-index: 2; /* Pour pas passer derrière les autres */
     box-shadow: 0 0 4px #0007;
 }
 

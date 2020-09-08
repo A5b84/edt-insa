@@ -85,7 +85,7 @@ export default class VEvent {
 
             if (this.descriptionMatch) {
                 // Ajustements
-                this.descriptionMatch[1] = this.descriptionMatch[1]
+                this.descriptionMatch[3] = this.descriptionMatch[3]
                 .replace('Physique:électromagnétisme-ondes', 'Physique\u00a0: électromagnétisme - ondes')
             }
         }
