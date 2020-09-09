@@ -225,6 +225,7 @@ input[type=date] {
 
 .event > * {
     flex-shrink: 0;
+    margin: auto; /* Pour pas que le lien fasse toute la ligne */
 }
 
 .event-name {
@@ -269,8 +270,16 @@ input[type=date] {
 }
 
 @media(max-width: 640px) {
+    :root {
+        --day-name-font-size: 1rem;
+    }
+
     body {
-        margin: 1rem .5rem;
+        margin: .5rem;
+    }
+
+    body > :not(:first-child) {
+        margin-top: .5rem;
     }
 
     #calendar {

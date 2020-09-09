@@ -34,9 +34,11 @@ function loadIcal(ical: string): void {
 
     // Date de récupération
     const cacheTime: number = +localStorage[cacheTimeKey];
-    if (isFinite(cacheTime)) {
+    if (isFinite(cacheTime)) { // Mieux que isNaN (pas d'infini)
         const d = new Date(cacheTime);
-        fetchDateEl.innerText = `Récupéré le ${d.toLocaleDateString('fr-FR')} à ${d.toLocaleTimeString('fr-FR')}`;
+        const date = d.toLocaleDateString('fr', { month: 'short', day: 'numeric' });
+        const time = d.toLocaleTimeString('fr', { hour: 'numeric', minute: 'numeric' });
+        fetchDateEl.innerText = `Récupéré le ${date} à\u00a0${time}`;
     }
 }
 

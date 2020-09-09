@@ -59,9 +59,7 @@ export default class Day extends ElementTemplate {
     }
 
     setDate(date: Date): void {
-        this.name.innerText = toTitleCase(
-            date.toLocaleString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' })
-        );
+        this.name.innerText = formatDate(date);
         this.content.classList.toggle('today', isToday(date));
     }
 
@@ -92,3 +90,29 @@ export default class Day extends ElementTemplate {
     }
 
 }
+
+
+
+function formatDate(date: Date): string {
+    var s = toTitleCase(date.toLocaleString('fr', { weekday: 'long', day: 'numeric', month: 'short' }));
+    const affixes = NAME_AFFIXES[date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })];
+    if (affixes) {
+        if (affixes[0]) s = affixes[0] + '\u00a0' + s;
+        if (affixes[1]) s += '\u00a0' + affixes[1];
+    }
+    return s;
+}
+
+const NAME_AFFIXES: { [key: string]: [string, string] | undefined } = {
+    '01/01': ['🛏️', '💤'], // Nouvel an
+    '02/14': ['❤️', '🍫'], // Saint Valentin
+    '03/17': ['☘️', '🍺'], // Saint Patrick
+    '03/21': ['🌼', '🐝'], // Printemps
+    '04/01': ['🐟', '🐡'], // 1er Avril
+    '06/22': ['☀️', '⛱️'], // Été
+    '09/23': ['🍂', '🌰'], // Automne
+    '10/31': ['🎃', '👻'], // Halloween
+    '12/21': ['❄️', '☃️'], // Hiver
+    '12/25': ['🎅', '🦌'], // Noël
+    '12/31': ['🍾', '🎉'], // Réveillon
+};
