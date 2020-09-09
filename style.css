@@ -137,7 +137,7 @@ input[type=date] {
 
 .day-names, .day-contents {
     display: flex;
-    padding: 0 2px;
+    padding: 0 1px 0 2px; /* Asymétrique pour l'ombre des heures à gauche */
 }
 
 .day-names {
@@ -225,7 +225,10 @@ input[type=date] {
 
 .event > * {
     flex-shrink: 0;
-    margin: auto; /* Pour pas que le lien fasse toute la ligne */
+}
+
+.event > :not(.event-name) {
+    margin: 0 auto; /* Pour pas que le lien fasse toute la ligne */
 }
 
 .event-name {
