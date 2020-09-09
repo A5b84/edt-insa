@@ -1,14 +1,12 @@
 import ElementTemplate from './templates/ElementTemplate';
-import { isToday, toTitleCase } from './Utils';
+import { getTimeInHours, isToday, toTitleCase } from './Utils';
 import VEvent from './VEvent';
 
 export default class Day extends ElementTemplate {
 
     readonly name: HTMLDivElement;
     readonly content: HTMLDivElement;
-    
-    protected start: Date = new Date();
-    protected end: Date = new Date(Date.now() + 7200e3);
+
     protected events: VEvent[] = [];
     readonly alwaysVisible: boolean;
     protected visible: boolean = true;
@@ -27,15 +25,11 @@ export default class Day extends ElementTemplate {
 
     addEvent(event: VEvent): void {
         const eventEl = event.getElement().element;
+        eventEl.remove(); // Au cas où
 
-        // Enlèvement au cas où
-        eventEl.remove();
+        eventEl.style.setProperty('--event-start', getTimeInHours(event.start) + '');
+        eventEl.style.setProperty('--event-end', getTimeInHours(event.end) + '');
 
-        // Position
-        eventEl.style.setProperty('--start', '' + this.getProgress(event.start));
-        eventEl.style.setProperty('--end', '' + this.getProgress(event.end));
-
-        // Ajout
         this.events.push(event);
         this.content.appendChild(eventEl);
     }
@@ -64,14 +58,25 @@ export default class Day extends ElementTemplate {
             = (visible ? '' : 'none');
     }
 
-    setBounds(start: number, end: number): void {
-        this.start = new Date(start);
-        this.end = new Date(end);
+    setDate(date: Date): void {
         this.name.innerText = toTitleCase(
-            this.start.toLocaleString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' })
+            date.toLocaleString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' })
         );
+        this.content.classList.toggle('today', isToday(date));
+    }
 
-        this.content.classList.toggle('today', isToday(this.start));
+    getStartEnd(): [number, number] | null {
+        if (this.events.length === 0) return null;
+
+        var start: number = this.events[0].start.getTime();
+        var end: number = this.events[0].end.getTime();
+
+        for (const event of this.events) {
+            if (event.start.getTime() < start) start = event.start.getTime();
+            if (event.end.getTime() > end) end = event.end.getTime();
+        }
+
+        return [start, end];
     }
 
     setFocused(focused: boolean): void {
@@ -84,13 +89,6 @@ export default class Day extends ElementTemplate {
         for (const event of this.events) {
             event.getElement().updateOverflow();
         }
-    }
-
-
-
-    /** Renvoie la progression dans la journée d'une date (start = 0, end = 1) */
-    protected getProgress(date: Date): number {
-        return (date.getTime() - this.start.getTime()) / (this.end.getTime() - this.start.getTime());
     }
 
 }

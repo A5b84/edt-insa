@@ -2,7 +2,19 @@ import Day from './Day';
 import { getTimeInHours } from './Utils';
 import VEvent from './VEvent';
 
+
+
+/** Temps en heure entre les valeurs possibles pour arrondir en heure */
+const ROUNDED_HOURS_STEP = .25;
+
+
+
 export default class Calendar {
+
+    protected static readonly DEFAULT_DAY_START = floorHours(10);
+    protected static readonly DEFAULT_DAY_END = ceilHours(14);
+
+
 
     readonly element: HTMLElement;
     readonly hours: HTMLDivElement;
@@ -11,9 +23,10 @@ export default class Calendar {
 
     // Faut toujours au moins un jour visible par semaine (pour pas tout casser)
     protected readonly days: Day[] = new Array(7).fill(0).map((_, i) => new Day(i < 5));
-    protected focusedDay: number;
-    protected currDate: Date;
     events: VEvent[] = [];
+    protected currDate: Date;
+    protected focusedDay: number;
+    protected wasWeekLayout: boolean = this.isWeekLayout();
 
 
 
@@ -29,73 +42,55 @@ export default class Calendar {
             this.dayContents.appendChild(day.content);
         }
 
-        this.currDate = new Date(Date.now() - 7 * 86400e3);
-        this.focusedDay = getDayIndex(this.currDate);
-        //      ^ Valeurs temporaires modifiées dans setDate
-        this.setDate(new Date());
+        this.currDate = new Date();
+        this.focusedDay = 0; // Valeur temporaire modifiée juste après
+        this.setFocusedDay(getDayIndex(this.currDate));
 
-        this.rebuild();
+        this.buildWeek();
     }
 
 
 
     /** Recrée tous les trucs pour l'affichage */
-    rebuild(): void {
+    buildWeek(): void {
         const weekStart = getWeekStart(this.currDate);
         const weekEnd = weekStart + 86400e3 * 7;
 
-        // On récupère les trucs de la semaine
-        const weekEvents = [];
-        var dayStart: number | undefined, dayEnd: number | undefined;
+        // Reset des jours
+        for (var i = 0; i < this.days.length; i++) {
+            this.days[i].clear();
+            this.days[i].setDate(new Date(weekStart + i * 86400e3));
+        }
+
+        // Ajout des évènements
         for (const event of this.events) {
             if (weekStart <= event.start.getTime() && event.start.getTime() < weekEnd) {
                 // Ajout
-                weekEvents.push(event);
-
-                // Heures de début/fin de journée
-                const eventStart = getTimeInHours(event.start);
-                const eventEnd = getTimeInHours(event.end);
-                if (dayStart === undefined || eventStart < dayStart) dayStart = eventStart;
-                if (dayEnd === undefined || eventEnd > dayEnd) dayEnd = eventEnd;
+                const index = getDayIndex(event.start);
+                this.days[index].addEvent(event);
             }
         }
 
-        // Début/fin des jours + reset
-        dayStart = dayStart ? floorHours(dayStart) : 9.75;
-        dayEnd = dayEnd ? ceilHours(dayEnd) : 14.25;
-        this.element.style.setProperty('--day-start', '' + dayStart);
-        this.element.style.setProperty('--day-end', '' + dayEnd);
-        this.element.style.setProperty('--day-start-mod-1', '' + dayStart % 1);
+        // Début/fin des jours
+        var weekDayStart: number | undefined;
+        var weekDayEnd: number | undefined;
+        for (const day of this.days) {
+            const bounds = this.getRoundedDayStartEnd(day);
+            if (!bounds) continue;
 
-        for (var i = 0; i < this.days.length; i++) {
-            const day = this.days[i];
-            day.clear();
-            day.setBounds(
-                weekStart + i * 86400e3 + dayStart * 3600e3,
-                weekStart + i * 86400e3 + dayEnd * 3600e3
-            );
+            if (weekDayStart === undefined || bounds[0] < weekDayStart) weekDayStart = bounds[0];
+            if (weekDayEnd === undefined || bounds[1] > weekDayEnd) weekDayEnd = bounds[1];
         }
+
+        if (weekDayStart === undefined) weekDayStart = Calendar.DEFAULT_DAY_START;
+        if (weekDayEnd === undefined) weekDayEnd = Calendar.DEFAULT_DAY_END;
+
+        this.element.style.setProperty('--shared-day-start', weekDayStart + '');
+        this.element.style.setProperty('--shared-day-end', weekDayEnd + '');
+        this.element.style.setProperty('--shared-day-start-mod-1', weekDayStart % 1 + '');
 
         // Heures à gauche
-        //      Enlèvement
-        while (this.hours.childElementCount) {
-            this.hours.firstElementChild?.remove();
-        }
-
-        //      Ajout
-        const ceilededDayEnd = Math.ceil(dayEnd);
-        for (var i = Math.ceil(dayStart); i < ceilededDayEnd; i++) {
-            const el = document.createElement('span');
-            el.innerText = `${i}h`;
-            el.style.setProperty('--hours', '' + i);
-            this.hours.appendChild(el);
-        }
-
-        // Ajout des évènements aux jours
-        for (const event of weekEvents) {
-            const eventDay = getDayIndex(event.start);
-            this.days[eventDay].addEvent(event);
-        }
+        this.buildHours();
 
         // Visibilité des jours
         for (var i = this.days.length - 1; i >= 0; i--) {
@@ -117,7 +112,32 @@ export default class Calendar {
         }
 
         // Fini
-        this.updateEventsOverflow();
+        this.notifyResized();
+    }
+
+    protected buildHours(): void {
+        // Enlèvement
+        while (this.hours.childElementCount) {
+            this.hours.firstElementChild?.remove();
+        }
+
+        // Ajout
+        const [start, end] = this.getStartEnd();
+        for (var i = Math.ceil(start); i < end; i++) {
+            const el = document.createElement('span');
+            el.innerText = `${i}h`;
+            el.style.setProperty('--hours', '' + i);
+            this.hours.appendChild(el);
+        }
+    }
+
+    protected getRoundedDayStartEnd(day: Day): [number, number] | null {
+        const bounds = day.getStartEnd();
+        if (!bounds) return null;
+        return [
+            floorHours(getTimeInHours(new Date(bounds[0]))),
+            ceilHours(getTimeInHours(new Date(bounds[1])))
+        ];
     }
 
 
@@ -129,7 +149,7 @@ export default class Calendar {
     setDate(date: Date, adjustToVisible: boolean = true): void {
         const oldDate = this.currDate;
         this.currDate = date;
-        if (!areSameWeek(oldDate, date)) this.rebuild();
+        if (!areSameWeek(oldDate, date)) this.buildWeek();
 
         this.setFocusedDay(getDayIndex(date));
         if (adjustToVisible && !this.days[this.focusedDay].isVisible()) {
@@ -142,6 +162,13 @@ export default class Calendar {
         this.days[index].setFocused(true);
         this.focusedDay = index;
         this.currDate = new Date(getWeekStart(this.currDate) + index * 86400e3);
+        const bounds = this.getRoundedDayStartEnd(this.days[index])
+            || [Calendar.DEFAULT_DAY_START, Calendar.DEFAULT_DAY_END];
+        this.element.style.setProperty('--focused-day-start', bounds[0] + '');
+        this.element.style.setProperty('--focused-day-end', bounds[1] + '');
+        this.element.style.setProperty('--focused-day-start-mod-1', bounds[0] % 1 + '');
+
+        if (!this.isWeekLayout()) this.buildHours();
     }
 
     moveToNextVisibleDay(): void {
@@ -186,10 +213,37 @@ export default class Calendar {
 
 
 
-    updateEventsOverflow(): void {
-        for (const day of this.days) {
-            day.updateEventsOverflow();
+    notifyResized(): void {
+        const isWeekLayout = this.isWeekLayout();
+
+        // Évènements qui dépassent
+        if (isWeekLayout) {
+            for (const day of this.days) {
+                day.updateEventsOverflow();
+            }
+        } else {
+            this.days[this.focusedDay].updateEventsOverflow();
         }
+
+        // Heures à gauche
+        if (isWeekLayout !== this.wasWeekLayout) this.buildHours();
+
+        // Fini
+        this.wasWeekLayout = isWeekLayout;
+    }
+
+    isWeekLayout(): boolean {
+        return innerWidth > 640;
+    }
+
+    protected getStartEnd(): [number, number] {
+        const style = getComputedStyle(this.element);
+        const start = style.getPropertyValue('--day-start');
+        const end = style.getPropertyValue('--day-end');
+        return [
+            start && !isNaN(+start) ? +start : Calendar.DEFAULT_DAY_START,
+            end && !isNaN(+end) ? +end : Calendar.DEFAULT_DAY_END
+        ]
     }
 
 
@@ -228,9 +282,6 @@ function areSameWeek(d1: Date, d2: Date): boolean {
 }
 
 
-
-/** Temps en heure entre les valeurs possibles pour arrondir en heure */
-const ROUNDED_HOURS_STEP = .25;
 
 function floorHours(hours: number) {
     const remainder = hours % ROUNDED_HOURS_STEP;

@@ -5,10 +5,6 @@ import { addSwipeListener } from './Utils';
 
 
 
-// TODO: redimensionner les jours quand on peut en voir qu'un seul à la fois
-
-
-
 const MAX_CACHE_AGE = 6 * 3600e3;
 
 const themeStylesheet = <HTMLLinkElement> document.getElementById('theme-stylesheet');
@@ -34,7 +30,7 @@ const cacheTimeKey = `adeCacheTime_${calendarId}`;
 
 function loadIcal(ical: string): void {
     calendar.events = parseIcal(ical);
-    calendar.rebuild();
+    calendar.buildWeek();
 
     // Date de récupération
     const cacheTime: number = +localStorage[cacheTimeKey];
@@ -63,10 +59,6 @@ function fetchIcal(): void {
 
 
 
-function getInputDate(): Date {
-    return dateInput.valueAsDate || new Date();
-}
-
 /** Met la date du calendrier dans `dateInput` */
 function updateInputDate(): void {
     // On peut pas juste faire 'dateInput.valueAsDate = calendar.getDate()'
@@ -81,18 +73,18 @@ function updateInputDate(): void {
 
 function setDate(date: Date): void {
     dateInput.valueAsDate = date; // Convertit les dates invalide en null
-    calendar.setDate(getInputDate()); // -> getDate pour avoir une date valide
-    updateInputDate();
+    if (dateInput.valueAsDate) {
+        calendar.setDate(dateInput.valueAsDate);
+    } else {
+        calendar.setDate(new Date());
+        updateInputDate();
+    }
 }
 
 
-
-function isWeekLayout(): boolean {
-    return innerWidth > 640;
-}
 
 function timeButtonHandler(offset: -1 | 1): void {
-    if (isWeekLayout()) calendar.moveToWeekRelative(offset);
+    if (calendar.isWeekLayout()) calendar.moveToWeekRelative(offset);
     else if (offset > 0) calendar.moveToNextVisibleDay();
     else calendar.moveToPreviousVisibleDay();
 
@@ -101,9 +93,7 @@ function timeButtonHandler(offset: -1 | 1): void {
 
 
 
-addEventListener('resize', () => {
-    calendar.updateEventsOverflow();
-});
+addEventListener('resize', () => calendar.notifyResized());
 
 addEventListener('keydown', e => {
     // Raccourics
@@ -122,7 +112,9 @@ addSwipeListener(
 homeBtn.addEventListener('click', () => setDate(new Date()));
 
 updateInputDate();
-dateInput.addEventListener('change', () => setDate(getInputDate()));
+dateInput.addEventListener('change', () => {
+    if (dateInput.valueAsDate) setDate(dateInput.valueAsDate);
+});
 
 prevBtn.addEventListener('click', () => timeButtonHandler(-1));
 nextBtn.addEventListener('click', () => timeButtonHandler(1));

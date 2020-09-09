@@ -99,9 +99,15 @@ input[type=date] {
     text-align: center;
 
     /* Variables remplacées dans le code */
-    --day-start: 9.75;
-    --day-end: 14.25;
-    --day-start-mod-1: .75;
+    --day-start: var(--shared-day-start);
+    --day-end: var(--shared-day-end);
+    --day-start-mod-1: var(--shared-day-start-mod-1);
+    --shared-day-start: 9.75;
+    --shared-day-end: 14.25;
+    --shared-day-start-mod-1: .75;
+    --focused-day-start: var(--shared-day-start);
+    --focused-day-end: var(--shared-day-end);
+    --focused-day-start-mod-1: var(--shared-day-start-mod-1);
 }
 
 .hours, .day-names {
@@ -184,14 +190,14 @@ input[type=date] {
     justify-content: center;
     box-sizing: border-box;
     width: calc(100% - 2px);
-    --height: calc((var(--end) - var(--start)) * 100% - 3px);
+    --height: calc((var(--event-end) - var(--event-start)) * var(--hour-size) - 3px);
     height: var(--height);
     min-height: var(--height);
     padding: .25rem .5rem;
     border-radius: .333rem;
 
     position: absolute;
-    top: calc(var(--start) * 100% + 2px);
+    top: calc((var(--event-start) - var(--day-start)) * var(--hour-size) + 2px);
     left: 1px;
 
     font-size: .8rem;
@@ -265,6 +271,12 @@ input[type=date] {
 @media(max-width: 640px) {
     body {
         margin: 1rem .5rem;
+    }
+
+    #calendar {
+        --day-start: var(--focused-day-start);
+        --day-end: var(--focused-day-end);
+        --day-start-mod-1: var(--focused-day-start-mod-1);
     }
 
     .day-name:not(.focused-day),
