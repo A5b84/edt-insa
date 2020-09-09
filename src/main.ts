@@ -1,6 +1,7 @@
 import * as pako from 'pako';
 import Calendar from './Calendar';
 import { parseIcal } from './parseIcal';
+import { addSwipeListener } from './Utils';
 
 
 
@@ -113,6 +114,10 @@ addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft') prevBtn.click();
     else if (e.key === 'ArrowRight') nextBtn.click();
 });
+
+addSwipeListener(
+    calendarEl, null, null, () => nextBtn.click(), () => prevBtn.click()
+);
 
 homeBtn.addEventListener('click', () => setDate(new Date()));
 

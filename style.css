@@ -30,7 +30,7 @@
 
 body {
     max-width: 100rem;
-    padding: 0 4rem;
+    padding: 0 4rem; /* margin auto pour centrer, padding pour laisser de l'espace */
     margin: 2rem auto;
 }
 
@@ -253,7 +253,8 @@ input[type=date] {
 
 @media(max-width: 960px) {
     body {
-        padding: 0 1rem;
+        padding: 0;
+        margin: 1.5rem 1rem;
     }
 
     .event-name {
@@ -262,9 +263,18 @@ input[type=date] {
 }
 
 @media(max-width: 640px) {
+    body {
+        margin: 1rem .5rem;
+    }
+
     .day-name:not(.focused-day),
     .day-content:not(.focused-day) {
         display: none;
+    }
+
+    .day-name:not(:first-child),
+    .day-content:not(:first-child) {
+        border-left: none; /* Pas de pointillés à gauche */
     }
 
     .day-content.today {

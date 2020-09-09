@@ -38,3 +38,44 @@ export function toTitleCase(s: string): string {
     return s.toLowerCase()
     .replace(/(?:^| )\S/gm, char => char.toUpperCase());
 }
+
+
+
+export function addSwipeListener(
+    target: EventTarget, onSwipeUp: (() => any) | null = null,
+    onSwipeDown: (() => any) | null = null, onSwipeLeft: (() => any) | null = null,
+    onSwipeRight: (() => any) | null = null, minRadius: number = 24
+): void {
+    minRadius *= minRadius;
+    var startX: number | null = null;
+    var startY: number | null = null;
+
+
+    target.addEventListener('touchstart', e => [startX, startY] = getTouchXY(e));
+    target.addEventListener('touchend', () => startX = startY = null);
+
+    target.addEventListener('touchmove', e => {
+        if (startX === null || startY === null) return;
+
+        const [newX, newY] = getTouchXY(e);
+        const dx = newX - startX, dy = newY - startY;
+        if (dx * dx + dy * dy < minRadius) return;
+
+        if (Math.abs(dy) > Math.abs(dx)) {
+            if (dy < 0) onSwipeUp && onSwipeUp();
+            else onSwipeDown && onSwipeDown();
+        } else {
+            if (dx < 0) onSwipeLeft && onSwipeLeft();
+            else onSwipeRight && onSwipeRight();
+        }
+
+        startX = startY = null;
+    });
+
+}
+
+function getTouchXY(e: Event): [number, number] {
+    return e instanceof TouchEvent
+        ? [e.touches[0].clientX, e.touches[0].clientY]
+        : [0, 0];
+}
