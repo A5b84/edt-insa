@@ -7,6 +7,10 @@ import VEvent from './VEvent';
 /** Temps en heure entre les valeurs possibles pour arrondir en heure */
 const ROUNDED_HOURS_STEP = .25;
 
+/** Décalage de quelques heures parce que minuit pile ça peut poser un
+ * problème avec les changements d'heure */
+const MIDNIGHT_OFFSET = 14400e3;
+
 
 
 export default class Calendar {
@@ -43,6 +47,7 @@ export default class Calendar {
         }
 
         this.currDate = new Date();
+        this.currDate.setHours(6); // Pour les problèmes de changements d'heures
         this.focusedDay = 0; // Valeur temporaire modifiée juste après
         this.setFocusedDay(getDayIndex(this.currDate));
 
@@ -59,7 +64,7 @@ export default class Calendar {
         // Reset des jours
         for (var i = 0; i < this.days.length; i++) {
             this.days[i].clear();
-            this.days[i].setDate(new Date(weekStart + i * 86400e3));
+            this.days[i].setDate(new Date(weekStart + i * 86400e3 + MIDNIGHT_OFFSET));
         }
 
         // Ajout des évènements
@@ -148,7 +153,8 @@ export default class Calendar {
 
     setDate(date: Date, adjustToVisible: boolean = true): void {
         const oldDate = this.currDate;
-        this.currDate = date;
+        this.currDate = new Date(date);
+        this.currDate.setHours(6); // Pour les changements d'heure
         if (!areSameWeek(oldDate, date)) this.buildWeek();
 
         this.setFocusedDay(getDayIndex(date));
@@ -161,7 +167,7 @@ export default class Calendar {
         this.days[this.focusedDay].setFocused(false);
         this.days[index].setFocused(true);
         this.focusedDay = index;
-        this.currDate = new Date(getWeekStart(this.currDate) + index * 86400e3);
+        this.currDate = new Date(getWeekStart(this.currDate) + index * 86400e3 + MIDNIGHT_OFFSET);
         const bounds = this.getRoundedDayStartEnd(this.days[index])
             || [Calendar.DEFAULT_DAY_START, Calendar.DEFAULT_DAY_END];
         this.element.style.setProperty('--focused-day-start', bounds[0] + '');
