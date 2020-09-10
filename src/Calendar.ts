@@ -117,7 +117,7 @@ export default class Calendar {
         }
 
         // Fini
-        this.notifyResized();
+        this.notifyLayoutChanged();
     }
 
     protected buildHours(): void {
@@ -219,7 +219,7 @@ export default class Calendar {
 
 
 
-    notifyResized(): void {
+    notifyLayoutChanged(): void {
         const isWeekLayout = this.isWeekLayout();
 
         // Évènements qui dépassent

@@ -15,6 +15,7 @@ const prevBtn = <HTMLButtonElement> document.getElementById('prev-btn');
 const nextBtn = <HTMLButtonElement> document.getElementById('next-btn');
 const calendarEl = <HTMLDivElement> document.getElementById('calendar');
 const fetchDateEl = <HTMLDivElement> document.getElementById('fetch-date');
+const simpleModeBtn = <HTMLButtonElement> document.getElementById('simple-mode-btn');
 const themeBtn = <HTMLButtonElement> document.getElementById('theme-btn');
 const forceRefreshBtn = <HTMLButtonElement> document.getElementById('force-refresh-btn');
 
@@ -95,7 +96,7 @@ function timeButtonHandler(offset: -1 | 1): void {
 
 
 
-addEventListener('resize', () => calendar.notifyResized());
+addEventListener('resize', () => calendar.notifyLayoutChanged());
 
 addEventListener('keydown', e => {
     // Raccourics
@@ -121,6 +122,14 @@ dateInput.addEventListener('change', () => {
 prevBtn.addEventListener('click', () => timeButtonHandler(-1));
 nextBtn.addEventListener('click', () => timeButtonHandler(1));
 
+simpleModeBtn.addEventListener('click', () => {
+    const simple = document.documentElement.classList.toggle('simple');
+    if (simple) localStorage.simple = '1';
+    else delete localStorage.simple;
+    calendar.notifyLayoutChanged();
+});
+if (localStorage.simple) simpleModeBtn.click();
+
 themeBtn.addEventListener('click', () => {
     const dark = document.documentElement.classList.toggle('dark');
     if (dark) {
@@ -131,7 +140,6 @@ themeBtn.addEventListener('click', () => {
         themeStylesheet.href = themeStylesheet.href.replace('dark', 'light');
     }
 });
-
 if (localStorage.theme) themeBtn.click();
 
 forceRefreshBtn.addEventListener('click', () => {

@@ -8,9 +8,9 @@ export function isToday(date: Date): boolean {
     return new Date(date).setHours(0, 0, 0, 0) === new Date().setHours(0, 0, 0, 0);
 }
 
-/** Renvoie l'heure d'une date au format '9h' (ou '9h00' si `full == true`)
+/** Renvoie l'heure d'une date dans un format lisible (ex: 9h, 15h30, ...)
  * @param date Date (objet) ou *différence* entre deux dates en ms (nombre) */
-export function formatTime(date: Date | number, full: boolean) {
+export function formatTime(date: Date | number) {
     var hours: number, minutes: number;
 
     if (date instanceof Date) {
@@ -23,7 +23,7 @@ export function formatTime(date: Date | number, full: boolean) {
 
     var s = `${hours}h`;
 
-    if (minutes !== 0 || full) {
+    if (minutes) {
         if (minutes < 10) s += '0' + minutes;
         else s += minutes;
     }

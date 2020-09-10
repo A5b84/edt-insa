@@ -4,12 +4,26 @@
     --hour-line-color: #ccc;
     --half-hour-line-color: #e4e4e4;
     --calendar-shadow-color: #0003;
-    --hour-size: 4.2rem;
+    --hour-size: calc(
+        var(--event-v-padding) * 2
+        + var(--event-name-font-size) * var(--event-name-line-height)
+        + var(--event-visible-lines) * var(--event-font-size) * var(--event-line-height)
+        + var(--event-overflow-border-thickness)
+    );
     --calendar-border-radius: 1rem;
 
     /* Constantes tordues qui sont juste là pour faire des calculs */
     --day-name-font-size: 1.05rem;
     --day-name-padding: .5rem;
+    --event-v-padding: .25rem;
+    --event-overflow-border-thickness: .4rem;
+    --event-font-size: .9rem;
+    --event-line-height: 1.2;
+    --event-name-font-size: 1.05rem;
+    --event-name-line-height: 1.4;
+    --event-visible-lines: 2;
+    /*      ^ Nombres de lignes visibles pour un évènement d'une heure
+     *      (sans compter le nom) */
 }
 
 :root:not(.dark) {
@@ -55,7 +69,6 @@ button.material-icons {
 }
 
 input[type=date] {
-    /* Trucs pour essayer de centrer le texte */
     padding-left: 0;
 }
 
@@ -193,15 +206,15 @@ input[type=date] {
     --height: calc((var(--event-end) - var(--event-start)) * var(--hour-size) - 3px);
     height: var(--height);
     min-height: var(--height);
-    padding: .25rem .5rem;
+    padding: var(--event-v-padding) .5rem;
     border-radius: .333rem;
 
     position: absolute;
     top: calc((var(--event-start) - var(--day-start)) * var(--hour-size) + 2px);
     left: 1px;
 
-    font-size: .8rem;
-    line-height: 1.25;
+    font-size: var(--event-font-size);
+    line-height: var(--event-line-height);
 }
 
 .dark .event {
@@ -211,16 +224,13 @@ input[type=date] {
 .event:hover {
     height: auto;
     z-index: 2; /* Pour pas passer derrière les autres */
+    box-shadow: 0 0 4px #0007;
 }
 
 .event.overflowing:not(:hover) {
-    justify-content: start;
+    justify-content: start; /* Alignement en haut */
     overflow: hidden;
-    border-bottom: .4rem solid #fff4;
-}
-
-.event.overflowing:hover {
-    box-shadow: 0 0 4px #0007;
+    border-bottom: var(--event-overflow-border-thickness) solid #fff4;
 }
 
 .event > * {
@@ -232,8 +242,8 @@ input[type=date] {
 }
 
 .event-name {
-    line-height: normal; /* line-height: 1 marche pô avec overflow-x */
-    font-size: 1.05rem;
+    line-height: var(--event-name-line-height); /* line-height: 1 marche pô avec overflow-x */
+    font-size: var(--event-name-font-size);
 }
 
 .event:not(:hover) .event-name {
@@ -254,6 +264,26 @@ input[type=date] {
 
 
 
+/* Mode simple */
+.simple {
+    --day-name-font-size: 1.125rem;
+    /* (Modifie pas les autres variables pour que tout reste de la même taille */
+}
+
+.simple .event {
+    font-size: 1rem;
+}
+
+.simple .event-name {
+    font-size: 1.25rem;
+}
+
+.simple .event > :not(.event-name):not(.event-schedule) {
+    display: none;
+}
+
+
+
 @keyframes rotating {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
@@ -267,8 +297,11 @@ input[type=date] {
         margin: 1.5rem 1rem;
     }
 
-    .event-name {
-        font-size: 1rem;
+    @media(min-width: 640px) {
+        :root {
+            --event-name-font-size: 1rem;
+            --event-font-size: .8rem;
+        }
     }
 }
 
