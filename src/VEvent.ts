@@ -106,11 +106,13 @@ export default class VEvent {
 
 
     getColor(): string {
-        // Fixe
-        if (COLOR_MAP[this.getSubject() || '']) return COLOR_MAP[this.getSubject() || ''];
+        const subject = this.getSubject() || '';
+        // Couleur fixe
+        if (subject in COLOR_MAP) return COLOR_MAP[subject];
 
-        // Random
-        return COLORS[(Math.random() * COLORS.length) | 0];
+        // Hash
+        const hash = hashCode(subject || this.summary);
+        return COLORS[((hash % COLORS.length) + COLORS.length) % COLORS.length];
     }
 
 }
@@ -137,3 +139,14 @@ const COLOR_MAP: { [key: string]: string } = {
     'PC-S3-IF-ACP': 'hsl(300 62% 57%)',
     'PC-S3-CO-TF': 'hsl(45 75% 50%)'
 };
+
+
+
+// Inspiré de https://stackoverflow.com/a/7616484
+function hashCode(str: string): number {
+    var hash = 0;
+    for (var i = 0; i < str.length; i++) {
+        hash = (hash << 5) - hash + str.charCodeAt(i) | 0;
+    }
+    return hash;
+}
