@@ -27,7 +27,7 @@ export default class Calendar {
 
     // Faut toujours au moins un jour visible par semaine (pour pas tout casser)
     protected readonly days: Day[] = new Array(7).fill(0).map((_, i) => new Day(i < 5));
-    events: VEvent[] = [];
+    protected events: VEvent[] = [];
     protected currDate: Date;
     protected focusedDay: number;
     protected wasWeekLayout: boolean = this.isWeekLayout();
@@ -48,13 +48,14 @@ export default class Calendar {
 
         this.currDate = new Date(Date.now() - 14 * 86400e3 + MIDNIGHT_OFFSET);
         this.focusedDay = 0; // Valeurs temporaires modifiées juste après
-        this.setDate(new Date()); // Appelle aussi buildWeek
+        this.setDate(new Date());
+        this.rebuildHours();
     }
 
 
 
     /** Recrée tous les trucs pour l'affichage */
-    buildWeek(): void {
+    protected rebuildWeek(): void {
         const weekStart = getWeekStart(this.currDate);
         const weekEnd = weekStart + 86400e3 * 7;
 
@@ -77,7 +78,7 @@ export default class Calendar {
         var weekDayStart: number | undefined;
         var weekDayEnd: number | undefined;
         for (const day of this.days) {
-            const bounds = this.getRoundedDayStartEnd(day);
+            const bounds = getRoundedDayStartEnd(day);
             if (!bounds) continue;
 
             if (weekDayStart === undefined || bounds[0] < weekDayStart) weekDayStart = bounds[0];
@@ -91,18 +92,15 @@ export default class Calendar {
         this.element.style.setProperty('--shared-day-end', weekDayEnd + '');
         this.element.style.setProperty('--shared-day-start-mod-1', weekDayStart % 1 + '');
 
-        // Heures à gauche
-        this.buildHours();
+        this.rebuildFocusedDayBounds(); // À éventuellement enlever (comme pour rebuildHours)
 
         // Visibilité des jours
         for (var i = this.days.length - 1; i >= 0; i--) {
             // Masquage des jours vides avec rien à leur droite
             const day = this.days[i];
-            if (day.isEmpty() && !day.alwaysVisible) {
-                day.setVisible(false);
-            } else {
-                break;
-            }
+            if (!day.isEmpty() || day.alwaysVisible) break;
+
+            day.setVisible(false);
         }
 
         for (; i >= 0; i--) {
@@ -117,7 +115,7 @@ export default class Calendar {
         this.notifyLayoutChanged();
     }
 
-    protected buildHours(): void {
+    protected rebuildHours(): void {
         // Enlèvement
         while (this.hours.childElementCount) {
             this.hours.firstElementChild?.remove();
@@ -133,16 +131,21 @@ export default class Calendar {
         }
     }
 
-    protected getRoundedDayStartEnd(day: Day): [number, number] | null {
-        const bounds = day.getStartEnd();
-        if (!bounds) return null;
-        return [
-            floorHours(getTimeInHours(new Date(bounds[0]))),
-            ceilHours(getTimeInHours(new Date(bounds[1])))
-        ];
+    protected rebuildFocusedDayBounds(): void {
+        const bounds = getRoundedDayStartEnd(this.days[this.focusedDay])
+            || [Calendar.DEFAULT_DAY_START, Calendar.DEFAULT_DAY_END];
+        this.element.style.setProperty('--focused-day-start', bounds[0] + '');
+        this.element.style.setProperty('--focused-day-end', bounds[1] + '');
+        this.element.style.setProperty('--focused-day-start-mod-1', bounds[0] % 1 + '');
     }
 
 
+
+    setEvents(events: VEvent[]): void {
+        this.events = events;
+        this.rebuildWeek();
+        this.rebuildHours();
+    }
 
     getDate(): Date {
         return this.currDate;
@@ -152,12 +155,26 @@ export default class Calendar {
         const oldDate = this.currDate;
         this.currDate = new Date(date);
         this.currDate.setHours(6); // Pour les changements d'heure
-        if (!areSameWeek(oldDate, date)) this.buildWeek();
+        if (!areSameWeek(oldDate, date)) this.rebuildWeek();
 
-        this.setFocusedDay(getDayIndex(date));
-        if (adjustToVisible && !this.days[this.focusedDay].isVisible()) {
-            this.moveToNextVisibleDay();
+        const dayIndex = getDayIndex(date);
+        if (adjustToVisible && !this.days[dayIndex].isVisible()) {
+            this.moveToNextVisibleDay(dayIndex);
+        } else {
+            this.setFocusedDay(dayIndex);
         }
+    }
+
+    moveToNext(): void {
+        if (this.isWeekLayout()) this.moveToWeekRelative(1);
+        else this.moveToNextVisibleDay();
+        this.rebuildHours();
+    }
+
+    moveToPrevious(): void {
+        if (this.isWeekLayout()) this.moveToWeekRelative(-1);
+        else this.moveToPreviousVisibleDay();
+        this.rebuildHours();
     }
 
     protected setFocusedDay(index: number): void {
@@ -165,20 +182,17 @@ export default class Calendar {
         this.days[index].setFocused(true);
         this.focusedDay = index;
         this.currDate = new Date(getWeekStart(this.currDate) + index * 86400e3 + MIDNIGHT_OFFSET);
-        const bounds = this.getRoundedDayStartEnd(this.days[index])
-            || [Calendar.DEFAULT_DAY_START, Calendar.DEFAULT_DAY_END];
-        this.element.style.setProperty('--focused-day-start', bounds[0] + '');
-        this.element.style.setProperty('--focused-day-end', bounds[1] + '');
-        this.element.style.setProperty('--focused-day-start-mod-1', bounds[0] % 1 + '');
-
-        if (!this.isWeekLayout()) this.buildHours();
+        this.rebuildFocusedDayBounds();
     }
 
-    moveToNextVisibleDay(): void {
-        for (var i = this.focusedDay + 1; i < this.days.length; i++) {
+    protected moveToNextVisibleDay(start: number | Date = this.focusedDay): void {
+        if (start instanceof Date) start = getDayIndex(start);
+
+        for (var i = start + 1; i < this.days.length; i++) {
             if (this.days[i].isVisible()) {
                 this.setDate(
-                    new Date(this.currDate.getTime() + (i - this.focusedDay) * 86400e3)
+                    new Date(this.currDate.getTime() + (i - this.focusedDay) * 86400e3),
+                    false
                 );
                 return;
             }
@@ -188,11 +202,14 @@ export default class Calendar {
         this.moveToWeekRelative(1);
     }
 
-    moveToPreviousVisibleDay(): void {
-        for (var i = this.focusedDay - 1; i >= 0; i--) {
+    protected moveToPreviousVisibleDay(start: number | Date = this.focusedDay): void {
+        if (start instanceof Date) start = getDayIndex(start);
+
+        for (var i = start - 1; i >= 0; i--) {
             if (this.days[i].isVisible()) {
                 this.setDate(
-                    new Date(this.currDate.getTime() - (this.focusedDay - i) * 86400e3)
+                    new Date(this.currDate.getTime() - (this.focusedDay - i) * 86400e3),
+                    false
                 );
                 return;
             }
@@ -202,7 +219,7 @@ export default class Calendar {
         this.moveToWeekRelative(-1);
     }
 
-    moveToWeekRelative(weeks: number): void {
+    protected moveToWeekRelative(weeks: number): void {
         this.setDate(
             new Date(this.currDate.getTime() + weeks * 7 * 86400e3),
             false
@@ -229,13 +246,13 @@ export default class Calendar {
         }
 
         // Heures à gauche
-        if (isWeekLayout !== this.wasWeekLayout) this.buildHours();
+        if (isWeekLayout !== this.wasWeekLayout) this.rebuildHours();
 
         // Fini
         this.wasWeekLayout = isWeekLayout;
     }
 
-    isWeekLayout(): boolean {
+    protected isWeekLayout(): boolean {
         return innerWidth > 640;
     }
 
@@ -282,6 +299,15 @@ function getWeekStart(date: Date): number {
 
 function areSameWeek(d1: Date, d2: Date): boolean {
     return getWeekStart(d1) === getWeekStart(d2);
+}
+
+function getRoundedDayStartEnd(day: Day): [number, number] | null {
+    const bounds = day.getStartEnd();
+    if (!bounds) return null;
+    return [
+        floorHours(getTimeInHours(new Date(bounds[0]))),
+        ceilHours(getTimeInHours(new Date(bounds[1])))
+    ];
 }
 
 

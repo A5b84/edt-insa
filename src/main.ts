@@ -30,8 +30,7 @@ const cacheTimeKey = `adeCacheTime_${calendarId}`;
 
 
 function loadIcal(ical: string): void {
-    calendar.events = parseIcal(ical);
-    calendar.buildWeek();
+    calendar.setEvents(parseIcal(ical));
 
     // Date de récupération
     const cacheTime: number = +localStorage[cacheTimeKey];
@@ -50,9 +49,9 @@ function fetchIcal(): void {
     fetch(`https://cors-anywhere.herokuapp.com/https://ade-outils.insa-lyon.fr/ADE-Cal:~${calendarId}`)
     .then(response => response.text())
     .then(ical => {
-        localStorage[cacheKey] = pako.deflate(ical, { to: 'string' });
         localStorage[cacheTimeKey] = Date.now();
         loadIcal(ical);
+        localStorage[cacheKey] = pako.deflate(ical, { to: 'string' });
     })
     .finally(() => {
         forceRefreshBtn.disabled = false;
@@ -87,9 +86,8 @@ function setDate(date: Date): void {
 
 
 function timeButtonHandler(offset: -1 | 1): void {
-    if (calendar.isWeekLayout()) calendar.moveToWeekRelative(offset);
-    else if (offset > 0) calendar.moveToNextVisibleDay();
-    else calendar.moveToPreviousVisibleDay();
+    if (offset > 0) calendar.moveToNext();
+    else calendar.moveToPrevious();
 
     updateInputDate();
 }

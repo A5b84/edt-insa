@@ -1,5 +1,11 @@
 import VEvent from './VEvent';
 
+const COVID_EXP = /\?STD[^\\]+\\n/;
+const COMMA_EXP = /\\,/g;
+const NEW_LINE_PATTERN = /(?:\\n)+/g;
+const DATE_PATTERN = /(\d{4})(\d\d)(\d\d)T(\d\d)(\d\d)(\d\d)(Z|)/;
+
+
 /** Fonction ghetto pour lire un fichier ICS (parce j'arrive pas à faire
  * marcher les librairies :'( */
 export function parseIcal(ical: string): VEvent[] {
@@ -47,9 +53,9 @@ export function parseIcal(ical: string): VEvent[] {
                 case 'DESCRIPTION':
                     if (description) break;
                     description = line.slice(colonIndex + 1)
-                    .replace(/\?STD[^\\]+\\n/, '') // Trucs Covid
-                    .replace(/\\,/g, ',') // Virgules échappées
-                    .replace(/(?:\\n)+/g, '\n') // Faux sauts de ligne
+                    .replace(COVID_EXP, '') // Trucs Covid
+                    .replace(COMMA_EXP, ',') // Virgules échappées
+                    .replace(NEW_LINE_PATTERN, '\n') // Faux sauts de ligne
                     // .replace(/\(Exporté le:[^)]*\)/, '') // Date d'export
                     // .replace(/^\s+|\s+$/g, ''); // Sauts de lignes et espaces inutiles
                     break;
@@ -73,7 +79,7 @@ export function parseIcal(ical: string): VEvent[] {
 /** Renvoie la date correspondant à la valeur entrée
  * https://tools.ietf.org/html/rfc5545#section-3.3.5 */
 function toValidDate(s: string): Date | null {
-    const m = s.match(/(\d{4})(\d\d)(\d\d)T(\d\d)(\d\d)(\d\d)(Z|)/);
+    const m = s.match(DATE_PATTERN);
     if (!m) return null;
     const date = new Date(`${m[1]}/${m[2]}/${m[3]} ${m[4]}:${m[5]}:${m[6]}${m[7]}`);
     return isNaN(date.getTime()) ? null : date;
