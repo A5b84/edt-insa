@@ -46,12 +46,9 @@ export default class Calendar {
             this.dayContents.appendChild(day.content);
         }
 
-        this.currDate = new Date();
-        this.currDate.setHours(6); // Pour les problèmes de changements d'heures
-        this.focusedDay = 0; // Valeur temporaire modifiée juste après
-        this.setFocusedDay(getDayIndex(this.currDate));
-
-        this.buildWeek();
+        this.currDate = new Date(Date.now() - 14 * 86400e3 + MIDNIGHT_OFFSET);
+        this.focusedDay = 0; // Valeurs temporaires modifiées juste après
+        this.setDate(new Date()); // Appelle aussi buildWeek
     }
 
 
