@@ -6,6 +6,7 @@ const NEW_LINE_PATTERN = /(?:\\n)+/g;
 const DATE_PATTERN = /(\d{4})(\d\d)(\d\d)T(\d\d)(\d\d)(\d\d)(Z|)/;
 
 
+
 /** Fonction ghetto pour lire un fichier ICS (parce j'arrive pas à faire
  * marcher les librairies :'( */
 export function parseIcal(ical: string): VEvent[] {

@@ -48,7 +48,7 @@ export default class Calendar {
 
         this.currDate = new Date(Date.now() - 14 * 86400e3 + MIDNIGHT_OFFSET);
         this.focusedDay = 0; // Valeurs temporaires modifiées juste après
-        this.setDate(new Date());
+        this.setDateInternal(new Date());
         this.rebuildHours();
     }
 
@@ -151,7 +151,17 @@ export default class Calendar {
         return this.currDate;
     }
 
-    setDate(date: Date, adjustToVisible: boolean = true): void {
+    /** Modifie la date et tous les autres trucs */
+    setDate(date: Date): void {
+        const oldDate = this.currDate;
+        this.setDateInternal(date);
+        if (!this.isWeekLayout() || !areSameWeek(oldDate, date)) {
+            this.rebuildHours();
+        }
+    }
+
+    /** Modifie juste la date, le jour sélectionné, et la semaine (si nécessaire) */
+    protected setDateInternal(date: Date, adjustToVisible: boolean = true): void {
         const oldDate = this.currDate;
         this.currDate = new Date(date);
         this.currDate.setHours(6); // Pour les changements d'heure
@@ -190,7 +200,7 @@ export default class Calendar {
 
         for (var i = start + 1; i < this.days.length; i++) {
             if (this.days[i].isVisible()) {
-                this.setDate(
+                this.setDateInternal(
                     new Date(this.currDate.getTime() + (i - this.focusedDay) * 86400e3),
                     false
                 );
@@ -207,7 +217,7 @@ export default class Calendar {
 
         for (var i = start - 1; i >= 0; i--) {
             if (this.days[i].isVisible()) {
-                this.setDate(
+                this.setDateInternal(
                     new Date(this.currDate.getTime() - (this.focusedDay - i) * 86400e3),
                     false
                 );
@@ -220,7 +230,7 @@ export default class Calendar {
     }
 
     protected moveToWeekRelative(weeks: number): void {
-        this.setDate(
+        this.setDateInternal(
             new Date(this.currDate.getTime() + weeks * 7 * 86400e3),
             false
         );
@@ -301,15 +311,6 @@ function areSameWeek(d1: Date, d2: Date): boolean {
     return getWeekStart(d1) === getWeekStart(d2);
 }
 
-function getRoundedDayStartEnd(day: Day): [number, number] | null {
-    const bounds = day.getStartEnd();
-    if (!bounds) return null;
-    return [
-        floorHours(getTimeInHours(new Date(bounds[0]))),
-        ceilHours(getTimeInHours(new Date(bounds[1])))
-    ];
-}
-
 
 
 function floorHours(hours: number) {
@@ -326,4 +327,13 @@ function ceilHours(hours: number) {
     return remainder > ROUNDED_HOURS_STEP / 2
         ? hours + ROUNDED_HOURS_STEP // Trop près -> on décale encore
         : hours; // Sinon c'est bon
+}
+
+function getRoundedDayStartEnd(day: Day): [number, number] | null {
+    const bounds = day.getStartEnd();
+    if (!bounds) return null;
+    return [
+        floorHours(getTimeInHours(new Date(bounds[0]))),
+        ceilHours(getTimeInHours(new Date(bounds[1])))
+    ];
 }

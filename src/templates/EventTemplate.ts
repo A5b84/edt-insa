@@ -14,6 +14,7 @@ export default class EventTemplate extends ElementTemplate {
         this.element = this.getEl<'div'>('.event');
         this.element.style.backgroundColor = event.getColor();
 
+        // Début/fin/durée
         this.getEl('.event-start').innerText = formatTime(event.start);
         this.getEl('.event-end').innerText = formatTime(event.end);
         this.getEl('.event-duration').innerText = formatTime(event.end.getTime() - event.start.getTime());
@@ -41,9 +42,6 @@ export default class EventTemplate extends ElementTemplate {
         } else {
             this.getEl('.event-location').remove();
         }
-
-        // Overflow
-        setTimeout(() => this.updateOverflow());
     }
 
 

@@ -34,16 +34,16 @@ export default class Day extends ElementTemplate {
         this.content.appendChild(eventEl);
     }
 
-    isEmpty(): boolean {
-        return this.content.childElementCount === 0;
-    }
-
     clear() {
         this.events = [];
         const content = this.content;
         while (content.childElementCount > 0) {
             content.firstElementChild?.remove();
         }
+    }
+
+    isEmpty(): boolean {
+        return this.content.childElementCount === 0;
     }
 
     isVisible(): boolean {
