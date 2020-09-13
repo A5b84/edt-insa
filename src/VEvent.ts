@@ -12,6 +12,7 @@ import EventTemplate from './templates/EventTemplate';
  * 6. Prof (pas toujours précisé)
  */
 const DESCRIPTION_EXP = /^\n\[(.+):(.+)\] (.+)\n\((.*)\)\n\1:\2::(.+)\n(?:([\s\S]+)\n)?\(Exporté le:/;
+const SUBGROUP_EXP = /Autres activités pédagogiques - .+enseignement présentiel des sous-groupes ?./;
 
 
 
@@ -86,7 +87,8 @@ export default class VEvent {
             if (this.descriptionMatch) {
                 // Ajustements
                 this.descriptionMatch[3] = this.descriptionMatch[3]
-                .replace('Physique:électromagnétisme-ondes', 'Physique\u00a0: électromagnétisme - ondes')
+                .replace(SUBGROUP_EXP, 'Présentiel')
+                .replace('Physique:électromagnétisme-ondes', 'Physique\u00a0: électromagnétisme - ondes');
             }
         }
     }
@@ -129,14 +131,16 @@ const COLORS = [
 ];
 
 const COLOR_MAP: { [key: string]: string } = {
-    'PC-S3-CH-ACEMP': 'hsl(195 80% 48%)',
-    'PC-S3-CSS-P': 'hsl(30 75% 50%)',
-    'PC-S3-PH-ACP': 'hsl(150 75% 45%)',
-    'PC-S3-MA-P': 'hsl(0 67% 50%)',
-    'PC-S3-MG-ACEMP': 'hsl(270 65% 55%)',
-    'PC-S3-PR-TF': 'hsl(45 75% 50%)',
-    'PC-S3-IF-ACP': 'hsl(300 62% 57%)',
-    'PC-S3-CO-TF': 'hsl(45 75% 50%)'
+    'PC-S3-CH-ACEMP': 'hsl(195 80% 48%)', // Chimie
+    'PC-S3-CSS-P': 'hsl(30 75% 50%)', // Cultures, Sciences, Sociétés
+    'PC-S3-PH-ACP': 'hsl(150 75% 45%)', // Physique
+    'PC-S3-MA-P': 'hsl(0 67% 50%)', // Maths
+    'PC-S3-MG-ACEMP': 'hsl(270 65% 55%)', // Mécanique générale
+    'PC-S3-PR-TF': 'hsl(45 75% 50%)', // Production
+    'PC-S3-IF-ACP': 'hsl(300 62% 57%)', // Informatique
+    'PC-S3-CO-TF': 'hsl(45 75% 50%)', // Conception
+
+    'PC-S3-ACT-EDT': 'hsl(15 25% 40%)', // 'Autres activités pédagogiques'
 };
 
 
