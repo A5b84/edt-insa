@@ -1,6 +1,6 @@
 import VEvent from './VEvent';
 
-const COVID_EXP = /\?STD[^\\]+\\n/;
+const COVID_EXP = /\?STD.+?\\n/;
 const COMMA_EXP = /\\,/g;
 const NEW_LINE_PATTERN = /(?:\\n)+/g;
 const DATE_PATTERN = /(\d{4})(\d\d)(\d\d)T(\d\d)(\d\d)(\d\d)(Z|)/;
@@ -11,7 +11,7 @@ const DATE_PATTERN = /(\d{4})(\d\d)(\d\d)T(\d\d)(\d\d)(\d\d)(Z|)/;
  * marcher les librairies :'( */
 export function parseIcal(ical: string): VEvent[] {
     // Préparatifs qui peuvent pas être mis dans VEvent pour opti
-    ical = ical.replace(/\r?\n +/gm, '') // Retours à la ligne inutiles
+    ical = ical.replace(/\r?\n /gm, '') // Retours à la ligne inutiles
 
     const events = ical.split(/(?:\r?\nEND:VEVENT)?\r?\nBEGIN:VEVENT\r?\n/gm);
     const result = [];

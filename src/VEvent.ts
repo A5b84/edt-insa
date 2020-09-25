@@ -1,4 +1,4 @@
-import EventTemplate from './templates/EventTemplate';
+import EventElement from './templates/EventTemplate';
 
 
 
@@ -11,7 +11,7 @@ import EventTemplate from './templates/EventTemplate';
  * 5. Groupe (Ex: 047s3)
  * 6. Prof (pas toujours précisé)
  */
-const DESCRIPTION_EXP = /^\n\[(.+):(.+)\] (.+)\n\((.*)\)\n\1:\2::(.+)\n(?:([\s\S]+)\n)?\(Exporté le:/;
+const DESCRIPTION_EXP = /^\n\[(.+?):(.+?)\] (.+?)\n(?:(.+?)\n)?\1:\2::(.+?)\n(?:([\s\S]+?)\n)?\(Exporté le:/;
 const SUBGROUP_EXP = /Autres activités pédagogiques - .+enseignement présentiel des sous-groupes ?./;
 
 
@@ -29,7 +29,7 @@ export default class VEvent {
     // readonly lastModified?: Date;
     // readonly sequence?: number;
 
-    protected element: EventTemplate | null = null;
+    protected element: EventElement | null = null;
     /** Match de la description (pour récupérer des trucs)
      * undefined = pas encore fait, null = échec */
     protected descriptionMatch?: RegExpMatchArray | null;
@@ -46,10 +46,10 @@ export default class VEvent {
 
 
 
-    getElement(): EventTemplate {
+    getElement(): EventElement {
         return this.element
             ? this.element
-            : this.element = new EventTemplate(this);
+            : this.element = new EventElement(this);
     }
 
 
@@ -93,22 +93,22 @@ export default class VEvent {
         }
     }
 
-    protected getNthMatch(n: number): string | null {
+    protected getNthMatch(n: number): string | undefined {
         this.matchDescriptionInfo();
-        return this.descriptionMatch ? this.descriptionMatch[n] : null;
+        return this.descriptionMatch ? this.descriptionMatch[n] : '';
     }
 
-    getSubject(): string | null { return this.getNthMatch(1); }
-    getType(): string | null { return this.getNthMatch(2); }
-    getName(): string | null { return this.getNthMatch(3); }
-    getDetails(): string | null { return this.getNthMatch(4); }
-    getGroup(): string | null { return this.getNthMatch(5); }
-    getPerson(): string | null { return this.getNthMatch(6); }
+    getSubject(): string { return <string> this.getNthMatch(1); }
+    getType(): string { return <string> this.getNthMatch(2); }
+    getName(): string { return <string> this.getNthMatch(3); }
+    getDetails(): string | undefined { return this.getNthMatch(4); }
+    getGroup(): string { return <string> this.getNthMatch(5); }
+    getPerson(): string | undefined { return this.getNthMatch(6); }
 
 
 
     getColor(): string {
-        const subject = this.getSubject() || '';
+        const subject = this.getSubject();
         // Couleur fixe
         if (subject in COLOR_MAP) return COLOR_MAP[subject];
 

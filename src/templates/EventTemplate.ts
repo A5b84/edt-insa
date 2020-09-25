@@ -2,7 +2,7 @@ import { formatTime } from '../Utils';
 import VEvent from '../VEvent';
 import ElementTemplate from './ElementTemplate';
 
-export default class EventTemplate extends ElementTemplate {
+export default class EventElement extends ElementTemplate {
 
     readonly element: HTMLDivElement;
 
@@ -21,9 +21,12 @@ export default class EventTemplate extends ElementTemplate {
 
         // Infos
         if (event.hasDescriptionInfo()) {
-            this.getEl('.event-name').innerText = <string> event.getName();
-            this.getEl('.event-type').innerText = <string> event.getType();
-            this.getEl('.event-group').innerText = <string> event.getGroup();
+            this.getEl('.event-name').innerText = event.getName();
+            this.getEl('.event-type').innerText = event.getType();
+            this.getEl('.event-group').innerText = event.getGroup();
+
+            const details = event.getDetails();
+            if (details) this.element.title = details;
 
             const person = event.getPerson();
             if (person) this.getEl('.event-person-name').innerText = person;
