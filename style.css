@@ -271,10 +271,15 @@ input[type=date] {
 }
 
 .simple .event {
+    padding-top: calc(var(--event-v-padding) / 2);
+    padding-bottom: calc(var(--event-v-padding) / 2);
+}
+
+.simple .event:not(.short) {
     font-size: 1rem;
 }
 
-.simple .event-name {
+.simple .event:not(.short) .event-name {
     font-size: 1.25rem;
 }
 
@@ -297,7 +302,7 @@ input[type=date] {
         margin: 1.5rem 1rem;
     }
 
-    @media(min-width: 640px) {
+    @media(min-width: 641px) {
         :root {
             --event-name-font-size: 1rem;
             --event-font-size: .8rem;

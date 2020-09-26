@@ -1,5 +1,5 @@
 import ElementTemplate from './templates/ElementTemplate';
-import { getTimeInHours, isToday, toTitleCase } from './Utils';
+import { isToday, toTitleCase } from './Utils';
 import VEvent from './VEvent';
 
 export default class Day extends ElementTemplate {
@@ -26,10 +26,6 @@ export default class Day extends ElementTemplate {
     addEvent(event: VEvent): void {
         const eventEl = event.getElement().element;
         eventEl.remove(); // Au cas où
-
-        eventEl.style.setProperty('--event-start', getTimeInHours(event.start) + '');
-        eventEl.style.setProperty('--event-end', getTimeInHours(event.end) + '');
-
         this.events.push(event);
         this.content.appendChild(eventEl);
     }

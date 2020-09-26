@@ -1,4 +1,4 @@
-import EventElement from './templates/EventTemplate';
+import EventElement from './templates/EventElement';
 
 
 

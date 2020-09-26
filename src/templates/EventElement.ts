@@ -1,4 +1,4 @@
-import { formatTime } from '../Utils';
+import { formatTime, getTimeInHours } from '../Utils';
 import VEvent from '../VEvent';
 import ElementTemplate from './ElementTemplate';
 
@@ -11,10 +11,17 @@ export default class EventElement extends ElementTemplate {
     constructor(event: VEvent) {
         super('event-template');
 
-        this.element = this.getEl<'div'>('.event');
-        this.element.style.backgroundColor = event.getColor();
+        const el = this.element = this.getEl<'div'>('.event');
+        el.style.backgroundColor = event.getColor();
 
+        
         // Début/fin/durée
+        const start = getTimeInHours(event.start);
+        const end = getTimeInHours(event.end);
+        el.style.setProperty('--event-start', start + '');
+        el.style.setProperty('--event-end', end + '');
+        if (end - start < .75) el.classList.add('short');
+
         this.getEl('.event-start').innerText = formatTime(event.start);
         this.getEl('.event-end').innerText = formatTime(event.end);
         this.getEl('.event-duration').innerText = formatTime(event.end.getTime() - event.start.getTime());
@@ -26,7 +33,7 @@ export default class EventElement extends ElementTemplate {
             this.getEl('.event-group').innerText = event.getGroup();
 
             const details = event.getDetails();
-            if (details) this.element.title = details;
+            if (details) el.title = details;
 
             const person = event.getPerson();
             if (person) this.getEl('.event-person-name').innerText = person;
@@ -50,10 +57,10 @@ export default class EventElement extends ElementTemplate {
 
 
     updateOverflow(): void {
-        this.element.classList.toggle(
-            'overflowing',
-            this.element.clientHeight < this.element.scrollHeight
-        );
+        const el = this.element;
+        el.classList.remove('overflowing'); // Pour pas que le bord réduise
+        //      le clientHeight
+        if (el.clientHeight < el.scrollHeight) el.classList.add('overflowing');
     }
 
 }
