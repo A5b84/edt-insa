@@ -14,7 +14,6 @@ export default class EventElement extends ElementTemplate {
         const el = this.element = this.getEl<'div'>('.event');
         el.style.backgroundColor = event.getColor();
 
-        
         // Début/fin/durée
         const start = getTimeInHours(event.start);
         const end = getTimeInHours(event.end);
@@ -28,12 +27,16 @@ export default class EventElement extends ElementTemplate {
 
         // Infos
         if (event.hasDescriptionInfo()) {
+            el.title = event.getSubject();
             this.getEl('.event-name').innerText = event.getName();
             this.getEl('.event-type').innerText = event.getType();
-            this.getEl('.event-group').innerText = event.getGroup();
+
+            const group = event.getGroup();
+            if (group) this.getEl('.event-group').innerText = group;
+            else this.getEl('.event-group').remove();
 
             const details = event.getDetails();
-            if (details) el.title = details;
+            if (details) el.title += '\n' + details;
 
             const person = event.getPerson();
             if (person) this.getEl('.event-person-name').innerText = person;

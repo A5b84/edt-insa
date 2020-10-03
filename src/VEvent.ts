@@ -4,14 +4,15 @@ import EventElement from './templates/EventElement';
 
 /** Expression régulière qui est censée matcher toutes les descriptions
  * Groupes:
- * 1. Matière (Ex: PC-S3-IF-ACP)
- * 2. Type (Ex: TD, TP, CM, EV)
- * 3. Nom (Ex: Algorithmique et programmation 3)
- * 4. Détails (optionel (rarement précisé), ex: TP de synthèse)
- * 5. Groupe (Ex: 047s3)
- * 6. Prof (pas toujours précisé)
+ *  1. Matière (Ex: PC-S3-IF-ACP)
+ *  2. Type (Ex: TD, TP, CM, EV)
+ *  3. Nom (Ex: Algorithmique et programmation 3)
+ *  4. Détails (optionnel (rarement précisé), ex: TP de synthèse)
+ *  5. Groupe (Ex: 047s3)
+ *  6. Prof(s) (optionnel (pas toujours précisé))
+ * (optionnel = peut être '')
  */
-const DESCRIPTION_EXP = /^\n\[(.+?):(.+?)\] (.+?)\n(?:(.+?)\n)?\1:\2::(.+?)\n(?:([\s\S]+?)\n)?\(Exporté le:/;
+const DESCRIPTION_EXP = /^\n\[(.+?):(.+?)\] (.*?)\n(.*?)\n\n(?:\1:\2::)?(.*?)\n([\s\S]*?)\n\(Exporté le:/;
 const SUBGROUP_EXP = /Autres activités pédagogiques - .+enseignement présentiel des sous-groupes ?./;
 
 
@@ -58,7 +59,7 @@ export default class VEvent {
         if (!this.location) return '?';
         return this.location
         .replace(/^\S+ - /, '') // Id de l'endroit
-        .replace(/(?<=Amphi)[^-]*(?= [^-\s]+)/, ''); // Nom complet de l'amphi
+        .replace(/(?<=Amphi)[^-]*(?= [^-\s])/, ''); // Nom complet de l'amphi
     }
 
     /** Renvoie le lien pour voir une salle sur OpenStreetMap, ex:
@@ -86,24 +87,38 @@ export default class VEvent {
 
             if (this.descriptionMatch) {
                 // Ajustements
-                this.descriptionMatch[3] = this.descriptionMatch[3]
-                .replace(SUBGROUP_EXP, 'Présentiel')
-                .replace('Physique:électromagnétisme-ondes', 'Physique\u00a0: électromagnétisme - ondes');
+                //      Nom des matières
+                const alias = ALIAS_MAP[this.descriptionMatch[3]];
+                if (alias) {
+                    this.descriptionMatch[3] = alias;
+                } else if (SUBGROUP_EXP.test(this.descriptionMatch[3])) {
+                    this.descriptionMatch[3] = 'Présentiel';
+                }
+
+                //      Liste des groupes
+                this.descriptionMatch[5] = this.descriptionMatch[5]
+                .replace(/\+/g, '\u200a+\u200a'); // \u200a = hair space
             }
         }
     }
 
-    protected getNthMatch(n: number): string | undefined {
+    protected getNthMatch(n: number): string {
         this.matchDescriptionInfo();
         return this.descriptionMatch ? this.descriptionMatch[n] : '';
     }
 
-    getSubject(): string { return <string> this.getNthMatch(1); }
-    getType(): string { return <string> this.getNthMatch(2); }
-    getName(): string { return <string> this.getNthMatch(3); }
-    getDetails(): string | undefined { return this.getNthMatch(4); }
-    getGroup(): string { return <string> this.getNthMatch(5); }
-    getPerson(): string | undefined { return this.getNthMatch(6); }
+    /** Matière (Ex: PC-S3-IF-ACP) */
+    getSubject(): string { return this.getNthMatch(1); }
+    /** Type (Ex: TD, TP, CM, EV) */
+    getType(): string { return this.getNthMatch(2); }
+    /** Nom (Ex: Algorithmique et programmation 3) */
+    getName(): string { return this.getNthMatch(3); }
+    /** Détails (optionnel (rarement précisé), ex: TP de synthèse) */
+    getDetails(): string { return this.getNthMatch(4); }
+    /** Groupe (optionnel (presque toujours précisé), ex: 047s3) */
+    getGroup(): string { return this.getNthMatch(5); }
+    /** Prof(s) (optionnel (pas toujours précisé)) */
+    getPerson(): string { return this.getNthMatch(6); }
 
 
 
@@ -131,16 +146,25 @@ const COLORS = [
 ];
 
 const COLOR_MAP: { [key: string]: string } = {
-    'PC-S3-CH-ACEMP': 'hsl(195 80% 48%)', // Chimie
-    'PC-S3-CSS-P': 'hsl(30 75% 50%)', // Cultures, Sciences, Sociétés
-    'PC-S3-PH-ACP': 'hsl(150 75% 45%)', // Physique
-    'PC-S3-MA-P': 'hsl(0 67% 50%)', // Maths
-    'PC-S3-MG-ACEMP': 'hsl(270 65% 55%)', // Mécanique générale
-    'PC-S3-PR-TF': 'hsl(45 75% 50%)', // Production
-    'PC-S3-IF-ACP': 'hsl(300 62% 57%)', // Informatique
-    'PC-S3-CO-TF': 'hsl(45 75% 50%)', // Conception
+    'PC-S3-MA-P':     COLORS[0], // Maths
+    'PC-SX-EPS-EDT':  COLORS[2], // EPS
+    'PC-S3-CO-TF':    COLORS[3], // Conception
+    'PC-S3-PR-TF':    COLORS[3], // Production
+    'PC-S3-PH-ACP':   COLORS[10], // Physique
+    'PC-S3-CH-ACEMP': COLORS[13], // Chimie
+    'HU-L-S1-ANG':    COLORS[15], // Anglais
+    'PC-S13-LV-EDT':  COLORS[15], // Anglais bis
+    'PC-S3-MG-ACEMP': COLORS[18], // Mécanique générale
+    'PC-S3-IF-ACP':   COLORS[20], // Informatique
+    'PC-S3-CSS-P':    COLORS[23], // Cultures, Sciences, Sociétés
 
     'PC-S3-ACT-EDT': 'hsl(15 25% 40%)', // 'Autres activités pédagogiques'
+};
+
+const ALIAS_MAP: { [key: string]: string } = {
+    'Activités Physiques et Sportives - affichage à l\'edt': 'EPS',
+    'affichage des Langues à l\'edt': 'Anglais',
+    'Physique:électromagnétisme-ondes': 'Physique\u00a0: électromagnétisme - ondes'
 };
 
 

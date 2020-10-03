@@ -2,7 +2,7 @@ import VEvent from './VEvent';
 
 const COVID_EXP = /\?STD.+?\\n/;
 const COMMA_EXP = /\\,/g;
-const NEW_LINE_PATTERN = /(?:\\n)+/g;
+const NEW_LINE_PATTERN = /\\n/g;
 const DATE_PATTERN = /(\d{4})(\d\d)(\d\d)T(\d\d)(\d\d)(\d\d)(Z|)/;
 
 
