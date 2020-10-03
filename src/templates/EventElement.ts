@@ -20,7 +20,7 @@ export default class EventElement extends ElementTemplate {
         const end = getTimeInHours(event.end);
         el.style.setProperty('--event-start', start + '');
         el.style.setProperty('--event-end', end + '');
-        if (end - start < .75) el.classList.add('short');
+        if (end - start < 1.5) el.classList.add('short');
 
         this.getEl('.event-start').innerText = formatTime(event.start);
         this.getEl('.event-end').innerText = formatTime(event.end);

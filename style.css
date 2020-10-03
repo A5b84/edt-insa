@@ -1,8 +1,8 @@
 :root {
     /* Constantes */
     --border-color: #ddd;
-    --hour-line-color: #ccc;
-    --half-hour-line-color: #e4e4e4;
+    --hour-line-color: #999;
+    --half-hour-line-color: #ddd;
     --calendar-shadow-color: #0003;
     --hour-size: calc(
         var(--event-v-padding) * 2
@@ -11,10 +11,12 @@
         + var(--event-overflow-border-thickness)
     );
     --calendar-border-radius: 1rem;
+    --transition: .1s;
 
     /* Constantes tordues qui sont juste là pour faire des calculs */
     --day-name-font-size: 1.05rem;
     --day-name-padding: .5rem;
+    --event-margin: 1px;
     --event-v-padding: .25rem;
     --event-overflow-border-thickness: .4rem;
     --event-font-size: .9rem;
@@ -46,6 +48,7 @@ body {
     max-width: 100rem;
     padding: 0 4rem; /* margin auto pour centrer, padding pour laisser de l'espace */
     margin: 2rem auto;
+    transition: background-color var(--transition);
 }
 
 body > :not(:first-child) {
@@ -123,9 +126,11 @@ input[type=date] {
     --focused-day-start-mod-1: var(--shared-day-start-mod-1);
 }
 
+/*      Heures */
 .hours, .day-names {
     background-color: var(--background);
     box-shadow: 0 0 4px var(--calendar-shadow-color);
+    transition: background-color var(--transition);
 }
 
 .hours {
@@ -144,6 +149,7 @@ input[type=date] {
     transform: translateY(-50%);
 }
 
+/*      Jours */
 .days {
     flex-grow: 1;
 }
@@ -168,6 +174,7 @@ input[type=date] {
 .day-name:not(:first-child),
 .day-content:not(:first-child) {
     border-left: 1px dashed var(--border-color);
+    transition: border-left-color var(--transition);
 }
 
 
@@ -197,21 +204,22 @@ input[type=date] {
 
 
 
+/*      Events */
 .event {
     display: flex;
     flex-direction: column;
     justify-content: center;
     box-sizing: border-box;
-    width: calc(100% - 2px);
-    --height: calc((var(--event-end) - var(--event-start)) * var(--hour-size) - 3px);
+    width: calc(100% - 2 * var(--event-margin));
+    --height: calc((var(--event-end) - var(--event-start)) * var(--hour-size) - 1px - 2 * var(--event-margin));
     height: var(--height);
     min-height: var(--height);
     padding: var(--event-v-padding) .5rem;
     border-radius: .333rem;
 
     position: absolute;
-    top: calc((var(--event-start) - var(--day-start)) * var(--hour-size) + 2px);
-    left: 1px;
+    top: calc((var(--event-start) - var(--day-start)) * var(--hour-size) + 1px + var(--event-margin));
+    left: var(--event-margin);
 
     font-size: var(--event-font-size);
     line-height: var(--event-line-height);
@@ -246,7 +254,9 @@ input[type=date] {
     font-size: var(--event-name-font-size);
 }
 
-.event:not(:hover) .event-name {
+:root:not(.simple) .event:not(:hover) .event-name,
+.simple .event.short:not(:hover) .event-name {
+    /* Recoupage sauf pour les cours longs en mode simple */
     overflow-x: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -262,6 +272,11 @@ input[type=date] {
     top: .125em;
 }
 
+.event .event-type ~ *::before {
+    /* Points pour séparer (CSS pour pas avoir à les enlever en JS) */
+    content: ' • ';
+}
+
 
 
 /* Mode simple */
@@ -275,11 +290,11 @@ input[type=date] {
     padding-bottom: calc(var(--event-v-padding) / 2);
 }
 
-.simple .event:not(.short) {
+.simple .event {
     font-size: 1rem;
 }
 
-.simple .event:not(.short) .event-name {
+.simple .event .event-name {
     font-size: 1.25rem;
 }
 
