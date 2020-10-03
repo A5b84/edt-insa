@@ -4,6 +4,7 @@
     --hour-line-color: #999;
     --half-hour-line-color: #ddd;
     --calendar-shadow-color: #0003;
+    --evaluation-border-color: #000;
     --hour-size: calc(
         var(--event-v-padding) * 2
         + var(--event-name-font-size) * var(--event-name-line-height)
@@ -40,6 +41,7 @@
     --hour-line-color: #000;
     --half-hour-line-color: #0004;
     --calendar-shadow-color: #0008;
+    --evaluation-border-color: #fff;
 }
 
 
@@ -227,6 +229,10 @@ input[type=date] {
 
 .dark .event {
     opacity: .9;
+}
+
+.event[data-type=EV] {
+    border: .25rem solid var(--evaluation-border-color);
 }
 
 .event:hover {

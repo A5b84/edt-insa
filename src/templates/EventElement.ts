@@ -29,7 +29,10 @@ export default class EventElement extends ElementTemplate {
         if (event.hasDescriptionInfo()) {
             el.title = event.getSubject();
             this.getEl('.event-name').innerText = event.getName();
-            this.getEl('.event-type').innerText = event.getType();
+
+            const type = event.getType();
+            this.getEl('.event-type').innerText = type;
+            el.setAttribute('data-type', type);
 
             const group = event.getGroup();
             if (group) this.getEl('.event-group').innerText = group;
