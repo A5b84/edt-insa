@@ -12,7 +12,7 @@
         + var(--event-overflow-border-thickness)
     );
     --calendar-border-radius: 1rem;
-    --transition: .1s;
+    /** --animation-duration pour les transitions (variable de Water.css) */
 
     /* Constantes tordues qui sont juste là pour faire des calculs */
     --day-name-font-size: 1.05rem;
@@ -50,7 +50,9 @@ body {
     max-width: 100rem;
     padding: 0 4rem; /* margin auto pour centrer, padding pour laisser de l'espace */
     margin: 2rem auto;
-    transition: background-color var(--transition);
+    transition:
+        background-color var(--animation-duration),
+        color var(--animation-duration);
 }
 
 body > :not(:first-child) {
@@ -77,6 +79,16 @@ input[type=date] {
     padding-left: 0;
 }
 
+.filler {
+    flex-grow: 1;
+    flex-shrink: 1;
+    width: 0 !important;
+    height: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    margin: 0 !important;
+}
+
 
 
 /* Boutons en haut et en bas */
@@ -88,10 +100,11 @@ input[type=date] {
 
     align-items: center;
     justify-content: center;
+    overflow: hidden; /* Pour pas que le bouton qui tourne dépasse */
 }
 
-.controls > :not(:last-child) {
-    margin-right: .5rem;
+.controls > :not(:first-child) {
+    margin-left: .5rem;
 }
 
 #theme-btn::before {
@@ -116,6 +129,8 @@ input[type=date] {
 
     text-align: center;
 
+    transition: box-shadow var(--animation-duration);
+
     /* Variables remplacées dans le code */
     --day-start: var(--shared-day-start);
     --day-end: var(--shared-day-end);
@@ -132,7 +147,9 @@ input[type=date] {
 .hours, .day-names {
     background-color: var(--background);
     box-shadow: 0 0 4px var(--calendar-shadow-color);
-    transition: background-color var(--transition);
+    transition:
+        background-color var(--animation-duration),
+        box-shadow var(--animation-duration);
 }
 
 .hours {
@@ -176,7 +193,7 @@ input[type=date] {
 .day-name:not(:first-child),
 .day-content:not(:first-child) {
     border-left: 1px dashed var(--border-color);
-    transition: border-left-color var(--transition);
+    transition: border-left-color var(--animation-duration);
 }
 
 
@@ -225,6 +242,7 @@ input[type=date] {
 
     font-size: var(--event-font-size);
     line-height: var(--event-line-height);
+    transition: opacity var(--animation-duration);
 }
 
 .dark .event {
@@ -233,7 +251,7 @@ input[type=date] {
 
 .event[data-type=EV] {
     border: .25rem solid var(--evaluation-border-color);
-    transition: border-color var(--transition);
+    transition: border-color var(--animation-duration);
 }
 
 .event:hover {
