@@ -1,8 +1,8 @@
 :root {
     /* Constantes */
     --border-color: #ddd;
-    --hour-line-color: #999;
-    --half-hour-line-color: #ddd;
+    --hour-line-color: #0007;
+    --half-hour-line-color: #0002;
     --calendar-shadow-color: #0003;
     --evaluation-border-color: #000;
     --hour-size: calc(
@@ -233,6 +233,7 @@ input[type=date] {
 
 .event[data-type=EV] {
     border: .25rem solid var(--evaluation-border-color);
+    transition: border-color var(--transition);
 }
 
 .event:hover {
