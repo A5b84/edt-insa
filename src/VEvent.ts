@@ -147,7 +147,8 @@ const COLORS = [
 
 const COLOR_MAP: { [key: string]: string } = {
     'PC-S3-MA-P':     COLORS[0], // Maths
-    'PC-SX-EPS-EDT':  COLORS[2], // EPS
+    'EPS-2-S1':       COLORS[2], // EPS
+    'PC-SX-EPS-EDT':  COLORS[2], // EPS bis
     'PC-S3-CO-TF':    COLORS[3], // Conception
     'PC-S3-PR-TF':    COLORS[3], // Production
     'PC-S3-PH-ACP':   COLORS[10], // Physique
