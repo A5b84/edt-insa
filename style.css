@@ -100,7 +100,6 @@ input[type=date] {
 
     align-items: center;
     justify-content: center;
-    overflow: hidden; /* Pour pas que le bouton qui tourne dépasse */
 }
 
 .controls > :not(:first-child) {
