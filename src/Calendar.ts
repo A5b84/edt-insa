@@ -247,6 +247,8 @@ export default class Calendar {
         const isWeekLayout = this.isWeekLayout();
 
         // Évènements qui dépassent
+        document.documentElement.classList.add('updating-event-overflow');
+        //      ^ Pour fermer les events survolés
         if (isWeekLayout) {
             for (const day of this.days) {
                 day.updateEventsOverflow();
@@ -254,6 +256,7 @@ export default class Calendar {
         } else {
             this.days[this.focusedDay].updateEventsOverflow();
         }
+        document.documentElement.classList.remove('updating-event-overflow');
 
         // Heures à gauche
         if (isWeekLayout !== this.wasWeekLayout) this.rebuildHours();

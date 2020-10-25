@@ -5,6 +5,7 @@
     --half-hour-line-color: #0002;
     --calendar-shadow-color: #0003;
     --evaluation-border-color: #000;
+    --evaluation-overflow-border-color: #0003;
     --hour-size: calc(
         var(--event-v-padding) * 2
         + var(--event-name-font-size) * var(--event-name-line-height)
@@ -42,6 +43,7 @@
     --half-hour-line-color: #0004;
     --calendar-shadow-color: #0008;
     --evaluation-border-color: #fff;
+    --evaluation-overflow-border-color: #fff6;
 }
 
 
@@ -248,12 +250,7 @@ input[type=date] {
     opacity: .9;
 }
 
-.event[data-type=EV] {
-    border: .25rem solid var(--evaluation-border-color);
-    transition: border-color var(--animation-duration);
-}
-
-.event:hover {
+:root:not(.updating-event-overflow) .event:hover {
     height: auto;
     z-index: 2; /* Pour pas passer derrière les autres */
     box-shadow: 0 0 4px #0007;
@@ -263,6 +260,15 @@ input[type=date] {
     justify-content: start; /* Alignement en haut */
     overflow: hidden;
     border-bottom: var(--event-overflow-border-thickness) solid #fff4;
+}
+
+.event[data-type=EV] {
+    border: .25rem solid var(--evaluation-border-color);
+    transition: border-color var(--animation-duration);
+}
+
+.event[data-type=EV].overflowing:not(:hover) {
+    border-bottom-color: var(--evaluation-overflow-border-color);
 }
 
 .event > * {
