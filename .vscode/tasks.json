@@ -6,7 +6,7 @@
         {
             "label": "browserify",
             "type": "shell",
-            "command": "browserify src/main.ts -p tsify -t [ babelify --extensions .ts --presets [@babel/preset-env] ] -o build/bundle.js",
+            "command": "browserify src/main.ts -p tsify -o build/bundle.js",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -15,7 +15,7 @@
         {
             "label": "browserify + tinyify",
             "type": "shell",
-            "command": "browserify src/main.ts -p tsify -p tinyify -t [ babelify --extensions .ts --presets [@babel/preset-env] ] -o build/bundle.js",
+            "command": "browserify src/main.ts -p tsify -p tinyify -o build/bundle.js",
             "group": "build"
         },
     ]
