@@ -146,26 +146,44 @@ const COLORS = [
 ];
 
 const COLOR_MAP: { [key: string]: string } = {
-    'PC-S3-MA-P':     COLORS[0], // Maths
-    'EPS-2-S1':       COLORS[2], // EPS
-    'PC-SX-EPS-EDT':  COLORS[2], // EPS bis
-    'PC-S3-CO-TF':    COLORS[3], // Conception
-    'PC-S3-PR-TF':    COLORS[3], // Production
-    'PC-S3-PH-ACP':   COLORS[10], // Physique
-    'PC-S3-CH-ACEMP': COLORS[13], // Chimie
-    'HU-L-S1-ANG':    COLORS[15], // Anglais
-    'PC-S13-LV-EDT':  COLORS[15], // Anglais bis
-    'PC-S3-MG-ACEMP': COLORS[18], // Mécanique générale
-    'PC-S3-IF-ACP':   COLORS[20], // Informatique
-    'PC-S3-CSS-P':    COLORS[23], // Cultures, Sciences, Sociétés
+    // Maths
+    'PC-S3-MA-P':     COLORS[0],
+    'PC-S4-MA-P':     COLORS[0],
+    // EPS
+    'EPS-2-S1':       COLORS[2],
+    'EPS-2-S2':       COLORS[2],
+    'PC-SX-EPS-EDT':  COLORS[2],
+    // Conception-production
+    'PC-S3-CO-TF':    COLORS[3],
+    'PC-S3-PR-TF':    COLORS[3],
+    // Physique
+    'PC-S3-PH-ACP':   COLORS[10],
+    'PC-S4-PH-ACP':   COLORS[10],
+    // Chimie
+    'PC-S3-CH-ACEMP': COLORS[13],
+    // Anglais
+    'HU-L-S1-ANG':    COLORS[15],
+    'PC-S13-LV-EDT':  COLORS[15],
+    // Mécanique générale
+    'PC-S3-MG-ACEMP': COLORS[18],
+    'PC-S4-MG-ACEMP': COLORS[18],
+    // Informatique
+    'PC-S3-IF-ACP':   COLORS[20],
+    'PC-S4-IF-ACEMP': COLORS[20],
+    // Cultures, Sciences, Sociétés
+    'PC-S3-CSS-P':    COLORS[23],
 
-    'PC-S3-ACT-EDT': 'hsl(15 25% 40%)', // 'Autres activités pédagogiques'
+    // 'Autres activités pédagogiques'
+    'PC-S3-ACT-EDT': 'hsl(15 25% 40%)',
+    'PC-S4-ACT-EDT': 'hsl(15 25% 40%)',
 };
 
 const ALIAS_MAP: { [key: string]: string } = {
+    'Activités Physiques et Sportives': 'EPS',
     'Activités Physiques et Sportives - affichage à l\'edt': 'EPS',
     'affichage des Langues à l\'edt': 'Anglais',
-    'Physique:électromagnétisme-ondes': 'Physique\u00a0: électromagnétisme - ondes'
+    'Physique:électromagnétisme-ondes': 'Physique\u00a0: électromagnétisme - ondes',
+    'Physique:ondes': 'Physique\u00a0: ondes',
 };
 
 
