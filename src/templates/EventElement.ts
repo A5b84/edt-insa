@@ -50,11 +50,17 @@ export default class EventElement extends ElementTemplate {
             this.getEl('.event-person').remove();
         }
 
-        // Salle
-        const locationLink = event.getLocationLink();
-        if (locationLink) {
-            this.getEl<'a'>('.event-location').href = locationLink;
-            this.getEl('.event-location-name').innerText = event.getLocationName();
+        // Salle(s)
+        const locations = event.getLocations();
+        if (locations.length > 0) {
+            const linkContainer = this.getEl('.event-location-links');
+            for (const location of locations) {
+                const a = document.createElement('a');
+                a.href = location[1];
+                a.target = '_blank';
+                a.innerText = location[0];
+                linkContainer.append(a);
+            }
         } else {
             this.getEl('.event-location').remove();
         }

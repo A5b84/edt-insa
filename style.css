@@ -302,7 +302,8 @@ input[type=date] {
     top: .125em;
 }
 
-.event .event-type ~ *::before {
+.event-type ~ ::before,
+.event-location-links > * ~ ::before {
     /* Points pour séparer (CSS pour pas avoir à les enlever en JS) */
     content: ' • ';
 }

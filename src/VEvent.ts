@@ -55,21 +55,18 @@ export default class VEvent {
 
 
 
-    getLocationName(): string {
-        if (!this.location) return '?';
-        return this.location
-        .replace(/^\S+ - /, '') // Id de l'endroit
-        .replace(/(?<=Amphi)[^-]*(?= [^-\s])/, ''); // Nom complet de l'amphi
-    }
-
-    /** Renvoie le lien pour voir une salle sur OpenStreetMap, ex:
-     * https://ade-outils.insa-lyon.fr/SALLE:1060101 */
-    getLocationLink(): string | null {
-        if (!this.location) return null;
-        const match = this.location.match(/^\S+/);
-        return match
-            ? `https://ade-outils.insa-lyon.fr/SALLE:${match[0]}`
-            : null;
+    /** @returns Tableau de lieux au format `[nom, lien]` */
+    getLocations(): [string, string][] {
+        if (!this.location) return [];
+        return this.location.split('\\,').map(loc => {
+            const id = loc.slice(0, loc.indexOf(' '));
+            const name = loc.slice(id.length + ' - '.length)
+            .replace(/(?<=Amphi)théâtre[^-]*(?= [^-\s])/, '');
+            //      ^ Remplace 'Amphithéâtre' par 'Amphi' et enlève le prénom
+            //      (enlève tous les mots entre 'Amphi' et le dernier mot
+            //      avant la fin ou avant un tiret)
+            return [name, `https://ade-outils.insa-lyon.fr/SALLE:${id}`];
+        });
     }
 
 
