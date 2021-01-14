@@ -34,14 +34,14 @@ export default class EventElement extends ElementTemplate {
             this.getEl('.event-type').innerText = type;
             el.setAttribute('data-type', type);
 
-            const group = event.getGroup();
+            const group = event.getGroups();
             if (group) this.getEl('.event-group').innerText = group;
             else this.getEl('.event-group').remove();
 
             const details = event.getDetails();
             if (details) el.title += '\n' + details;
 
-            const person = event.getPerson();
+            const person = event.getPeople();
             if (person) this.getEl('.event-person-name').innerText = person;
             else this.getEl('.event-person').remove();
         } else {

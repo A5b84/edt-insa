@@ -20,12 +20,14 @@ const themeBtn = <HTMLButtonElement> document.getElementById('theme-btn');
 const forceRefreshBtn = <HTMLButtonElement> document.getElementById('force-refresh-btn');
 
 const calendar: Calendar = new Calendar(calendarEl);
-(<any> window).calendar = calendar; // Variable globale accessible depuis la console
 
 const search = new URLSearchParams(location.search);
 const calendarId = search.get('cal');
 const cacheKey = `adeCache_${calendarId}`;
 const cacheTimeKey = `adeCacheTime_${calendarId}`;
+
+const help = (<any> window).help = <const> { Pako, calendar, cacheKey, cacheTimeKey, fetchIcal };
+Object.assign(window, help); // Variables dans la console pour jouer avec
 
 
 
@@ -109,7 +111,7 @@ if (localStorage[cacheKey]) {
         loadIcal(Pako.inflate(localStorage[cacheKey], { to: 'string' }));
     } catch (e) {
         // Au cas où
-        console.error(e);
+        console.error('Erreur lors de la lecture du calendrier', e);
         delete localStorage[cacheKey];
     }
 }

@@ -2,18 +2,14 @@ import EventElement from './templates/EventElement';
 
 
 
-/** Expression régulière qui est censée matcher toutes les descriptions
- * Groupes:
- *  1. Matière (Ex: PC-S3-IF-ACP)
- *  2. Type (Ex: TD, TP, CM, EV)
- *  3. Nom (Ex: Algorithmique et programmation 3)
- *  4. Détails (optionnel (rarement précisé), ex: TP de synthèse)
- *  5. Groupe (Ex: 047s3)
- *  6. Prof(s) (optionnel (pas toujours précisé))
- * (optionnel = peut être '')
- */
-const DESCRIPTION_EXP = /^\n\[(.+?):(.+?)\] (.*?)\n(.*?)\n\n(?:\1:\2::)?(.*?)\n([\s\S]*?)\n\(Exporté le:/;
-const SUBGROUP_EXP = /Autres activités pédagogiques - .+enseignement présentiel des sous-groupes ?./;
+/** Expression régulière qui est censée matcher toutes les descriptions */
+// TODO à modifier pour les évènements qui ont les classes sur plusieurs lignes
+const DESCRIPTION_EXP = /^\n\[(?<subject>.+?):(?<type>.+?)\] (?<name>.+)\n(?<details>.*)\n\n(?:\k<subject>:\k<type>::)?(?<groups>.+)\n(?:(?<people>(?:[^?\n].*\n)*[^?\n].*)\n)?(?:(?<comments>\?.+)\n)?\n\(Exporté le:/;
+const COVID_GROUP_EXP = /Autres activités pédagogiques - .+enseignement présentiel des sous-groupes ?./;
+
+type DescriptionMatchGroup =  'subject' | 'type' | 'name' | 'details' | 'groups' | 'people';
+type DescriptionMatchGroups = Record<DescriptionMatchGroup, string>;
+// TODO vérifier que les trucs optionnels vallent jamais undefined
 
 
 
@@ -31,9 +27,9 @@ export default class VEvent {
     // readonly sequence?: number;
 
     protected element: EventElement | null = null;
-    /** Match de la description (pour récupérer des trucs)
-     * undefined = pas encore fait, null = échec */
-    protected descriptionMatch?: RegExpMatchArray | null;
+    /** Groupes matchés dans la description (pour récupérer des trucs)
+     * `undefined` = pas encore fait, `null` = échec */
+    protected descriptionGroups?: DescriptionMatchGroups | null;
 
 
 
@@ -74,55 +70,62 @@ export default class VEvent {
     /** Renvoie vrai si l'évènement a les infos en plus */
     hasDescriptionInfo(): boolean {
         this.matchDescriptionInfo();
-        return this.descriptionMatch !== null;
+        return this.descriptionGroups !== null;
     }
 
     /** Matche les infos de la description */
     protected matchDescriptionInfo() {
-        if (this.descriptionMatch === undefined) {
-            this.descriptionMatch = this.description.match(DESCRIPTION_EXP);
+        if (this.descriptionGroups === undefined) {
+            const match = this.description.match(DESCRIPTION_EXP);
 
-            if (this.descriptionMatch) {
+            if (match && match.groups) {
+                const groups = this.descriptionGroups = <DescriptionMatchGroups> match.groups;
                 // Ajustements
                 //      Nom des matières
-                const alias = ALIAS_MAP[this.descriptionMatch[3]];
-                if (alias) {
-                    this.descriptionMatch[3] = alias;
-                } else if (SUBGROUP_EXP.test(this.descriptionMatch[3])) {
-                    this.descriptionMatch[3] = 'Présentiel';
+                if (groups.name in ALIAS_MAP) {
+                    groups.name = ALIAS_MAP[<keyof typeof ALIAS_MAP> groups.name];
+                } else if (COVID_GROUP_EXP.test(groups.name)) {
+                    groups.name = 'Présentiel';
                 }
 
                 //      Liste des groupes
-                this.descriptionMatch[5] = this.descriptionMatch[5]
-                .replace(/\+/g, '\u200a+\u200a'); // \u200a = hair space
+                // TODO remplacer par des trucs séparés par des points avec du CSS
+                groups.groups = groups.groups
+                .replace(/\+/g, '\u200a-\u200a'); // \u200a = hair space
+
+            } else {
+                // Échec
+                this.descriptionGroups = null; // Au cas où le problème soit les groupes
+                console.warn(`Description qui correspond pas à l'expression régulière`, this, this.description);
             }
         }
     }
 
-    protected getNthMatch(n: number): string {
+    protected getGroup(group: DescriptionMatchGroup): string {
         this.matchDescriptionInfo();
-        return this.descriptionMatch ? this.descriptionMatch[n] : '';
+        return this.descriptionGroups ? this.descriptionGroups[group] : '';
     }
 
     /** Matière (Ex: PC-S3-IF-ACP) */
-    getSubject(): string { return this.getNthMatch(1); }
+    getSubject(): string { return this.getGroup('subject'); }
     /** Type (Ex: TD, TP, CM, EV) */
-    getType(): string { return this.getNthMatch(2); }
+    getType(): string { return this.getGroup('type'); }
     /** Nom (Ex: Algorithmique et programmation 3) */
-    getName(): string { return this.getNthMatch(3); }
+    getName(): string { return this.getGroup('name'); }
     /** Détails (optionnel (rarement précisé), ex: TP de synthèse) */
-    getDetails(): string { return this.getNthMatch(4); }
-    /** Groupe (optionnel (presque toujours précisé), ex: 047s3) */
-    getGroup(): string { return this.getNthMatch(5); }
-    /** Prof(s) (optionnel (pas toujours précisé)) */
-    getPerson(): string { return this.getNthMatch(6); }
+    getDetails(): string { return this.getGroup('details'); }
+    /** Groupe (Ex: 047s3) */
+    getGroups(): string { return this.getGroup('groups'); }
+    /** Prof(s) (optionnel (pas toujours précisé), ex: NOM Prénom) */
+    getPeople(): string { return this.getGroup('people'); }
 
 
 
     getColor(): string {
         const subject = this.getSubject();
         // Couleur fixe
-        if (subject in COLOR_MAP) return COLOR_MAP[subject];
+        if (subject.startsWith('PC-S4-P2i')) return `hsl(240 55% 67%)`;
+        if (subject in COLOR_MAP) return COLOR_MAP[<keyof typeof COLOR_MAP> subject];
 
         // Hash
         const hash = hashCode(subject || this.summary);
@@ -133,7 +136,7 @@ export default class VEvent {
 
 
 
-const COLORS = [
+const COLORS = <const> [
     'hsl(0 67% 50%)', 'hsl(15 72% 50%)', 'hsl(30 75% 50%)', 'hsl(45 75% 50%)',
     'hsl(60 75% 45%)', 'hsl(75 80% 42%)', 'hsl(90 75% 42%)', 'hsl(105 70% 43%)',
     'hsl(120 69% 42%)', 'hsl(135 72% 45%)', 'hsl(150 75% 45%)', 'hsl(165 80% 44%)',
@@ -142,7 +145,7 @@ const COLORS = [
     'hsl(300 62% 57%)', 'hsl(315 67% 55%)', 'hsl(330 70% 55%)', 'hsl(345 75% 55%)',
 ];
 
-const COLOR_MAP: { [key: string]: string } = {
+const COLOR_MAP = <const> {
     // Maths
     'PC-S3-MA-P':     COLORS[0],
     'PC-S4-MA-P':     COLORS[0],
@@ -175,7 +178,7 @@ const COLOR_MAP: { [key: string]: string } = {
     'PC-S4-ACT-EDT': 'hsl(15 25% 40%)',
 };
 
-const ALIAS_MAP: { [key: string]: string } = {
+const ALIAS_MAP = <const> {
     'Activités Physiques et Sportives': 'EPS',
     'Activités Physiques et Sportives - affichage à l\'edt': 'EPS',
     'affichage des Langues à l\'edt': 'Anglais',

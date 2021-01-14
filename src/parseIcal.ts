@@ -1,6 +1,5 @@
 import VEvent from './VEvent';
 
-const COVID_EXP = /\?STD.+?\\n/;
 const COMMA_EXP = /\\,/g;
 const NEW_LINE_PATTERN = /\\n/g;
 const DATE_PATTERN = /(\d{4})(\d\d)(\d\d)T(\d\d)(\d\d)(\d\d)(Z|)/;
@@ -11,7 +10,7 @@ const DATE_PATTERN = /(\d{4})(\d\d)(\d\d)T(\d\d)(\d\d)(\d\d)(Z|)/;
  * marcher les librairies :'( */
 export function parseIcal(ical: string): VEvent[] {
     // Préparatifs qui peuvent pas être mis dans VEvent pour opti
-    ical = ical.replace(/\r?\n /gm, '') // Retours à la ligne inutiles
+    ical = ical.replace(/\r?\n /g, '') // Retours à la ligne inutiles
 
     const events = ical.split(/(?:\r?\nEND:VEVENT)?\r?\nBEGIN:VEVENT\r?\n/gm);
     const result = [];
@@ -32,29 +31,24 @@ export function parseIcal(ical: string): VEvent[] {
 
                 switch (line.slice(0, colonIndex)) {
                 case 'DTSTART':
-                    if (start) break;
-                    start = toValidDate(line.slice(colonIndex + 1));
+                    if (!start) start = toValidDate(line.slice(colonIndex + 1));
                     break;
 
                 case 'DTEND':
-                    if (end) break;
-                    end = toValidDate(line.slice(colonIndex + 1));
+                    if (!end) end = toValidDate(line.slice(colonIndex + 1));
                     break;
 
                 case 'LOCATION':
-                    if (location) break;
-                    location = line.slice(colonIndex + 1);
+                    if (!location) location = line.slice(colonIndex + 1);
                     break;
 
                 case 'SUMMARY':
-                    if (summary) break;
-                    summary = line.slice(colonIndex + 1);
+                    if (!summary) summary = line.slice(colonIndex + 1);
                     break;
 
                 case 'DESCRIPTION':
                     if (description) break;
                     description = line.slice(colonIndex + 1)
-                    .replace(COVID_EXP, '') // Trucs Covid
                     .replace(COMMA_EXP, ',') // Virgules échappées
                     .replace(NEW_LINE_PATTERN, '\n') // Faux sauts de ligne
                     // .replace(/\(Exporté le:[^)]*\)/, '') // Date d'export

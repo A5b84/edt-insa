@@ -4,17 +4,17 @@ Page web pour voir son emploi du temps de l'INSA, très très inspiré de [edt.j
 
 ## Customisation
 * Couleurs des cours
-    - [VEvent.ts](./src/VEvent.ts) > `COLORS`
-    - [VEvent.ts](./src/VEvent.ts) > `COLOR_MAP`
+    - [`VEvent` > `COLORS`](src/VEvent.ts)
+    - [`VEvent` > `COLOR_MAP`](src/VEvent.ts)
 * Noms de cours
-    - [VEvent.ts](./src/VEvent.ts) > `ALIAS_MAP`
+    - [`VEvent` > `ALIAS_MAP`](src/VEvent.ts)
 * Emojis à côté des noms des jours
-    - [Day.ts](./src/Day.ts) > `NAME_AFFIXES`
+    - [`Day` > `NAME_AFFIXES`](src/Day.ts)
 
 ## Compilation
 1. Packages globaux : `npm i -g typescript browserify`
 2. Packages locaux : `npm i`
-3. `Ctrl+Shift+B` (pour VSCode, sinon voir [tasks.json](tasks.json))
+3. `Ctrl+Shift+B` (voir [tasks.json](.vscode/tasks.json))
 
 ## Licences
 - [Material Design Icons](https://material.io/resources/icons/) (licence [Apache v2.0](https://www.apache.org/licenses/LICENSE-2.0.html))
