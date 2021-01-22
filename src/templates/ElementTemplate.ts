@@ -1,6 +1,6 @@
 export default class ElementTemplate {
 
-    private static template: HTMLTemplateElement;
+    private static template?: HTMLTemplateElement | null;
 
     readonly fragment: DocumentFragment;
 
@@ -10,7 +10,7 @@ export default class ElementTemplate {
     constructor(id: string) {
         const clazz = this.getClass();
         clazz.init(id);
-        this.fragment = <DocumentFragment> clazz.template.content.cloneNode(true);
+        this.fragment = <DocumentFragment> clazz.template!.content.cloneNode(true);
     }
 
 
@@ -23,8 +23,8 @@ export default class ElementTemplate {
     private static init(id: string): void {
         if (this.template) return;
 
-        this.template = <HTMLTemplateElement> document.getElementById(id);
-        if (this.template === null) {
+        this.template = <HTMLTemplateElement | null> document.getElementById(id);
+        if (!this.template) {
             throw new Error(`Template '${id}' introuvable`);
         }
     }
@@ -39,7 +39,7 @@ export default class ElementTemplate {
         const el = this.getElSafe(selector);
 
         if (!el) {
-            const id = this.getClass().template.id;
+            const id = this.getClass().template!.id;
             throw new Error(
                 `Élément '${selector}' introuvable pour le template '${id}'`
             );

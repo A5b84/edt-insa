@@ -78,7 +78,7 @@ export default class VEvent {
         if (this.descriptionGroups === undefined) {
             const match = this.description.match(DESCRIPTION_EXP);
 
-            if (match && match.groups) {
+            if (match?.groups) {
                 const groups = this.descriptionGroups = <DescriptionMatchGroups> match.groups;
                 // Ajustements
                 //      Nom des matières
@@ -89,7 +89,6 @@ export default class VEvent {
                 }
 
                 //      Liste des groupes
-                // TODO remplacer par des trucs séparés par des points avec du CSS
                 groups.groups = groups.groups
                 .replace(/\+/g, '\u200a-\u200a'); // \u200a = hair space
 
@@ -182,6 +181,7 @@ const ALIAS_MAP = <const> {
     'Activités Physiques et Sportives': 'EPS',
     'Activités Physiques et Sportives - affichage à l\'edt': 'EPS',
     'affichage des Langues à l\'edt': 'Anglais',
+    'Parcours Architecture Matérielle, Logicielle et Réseau sans-fil pour les Données Capteurs': 'P2i 2',
     'Physique:électromagnétisme-ondes': 'Physique\u00a0: électromagnétisme - ondes',
     'Physique:ondes': 'Physique\u00a0: ondes',
 };

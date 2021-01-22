@@ -7,17 +7,17 @@ import { addSwipeListener } from './Utils';
 
 const MAX_CACHE_AGE = 6 * 3600e3;
 
-const themeStylesheet = <HTMLLinkElement> document.getElementById('theme-stylesheet');
+const themeStylesheet = getElementById<'link'>('theme-stylesheet');
 
-const homeBtn = <HTMLButtonElement> document.getElementById('home-btn');
-const dateInput = <HTMLInputElement> document.getElementById('date-input');
-const prevBtn = <HTMLButtonElement> document.getElementById('prev-btn');
-const nextBtn = <HTMLButtonElement> document.getElementById('next-btn');
-const calendarEl = <HTMLDivElement> document.getElementById('calendar');
-const fetchDateEl = <HTMLDivElement> document.getElementById('fetch-date');
-const simpleModeBtn = <HTMLButtonElement> document.getElementById('simple-mode-btn');
-const themeBtn = <HTMLButtonElement> document.getElementById('theme-btn');
-const forceRefreshBtn = <HTMLButtonElement> document.getElementById('force-refresh-btn');
+const homeBtn = getElementById<'button'>('home-btn');
+const dateInput = getElementById<'input'>('date-input');
+const prevBtn = getElementById<'button'>('prev-btn');
+const nextBtn = getElementById<'button'>('next-btn');
+const calendarEl = getElementById<'div'>('calendar');
+const fetchDateEl = getElementById<'div'>('fetch-date');
+const simpleModeBtn = getElementById<'button'>('simple-mode-btn');
+const themeBtn = getElementById<'button'>('theme-btn');
+const forceRefreshBtn = getElementById<'button'>('force-refresh-btn');
 
 const calendar: Calendar = new Calendar(calendarEl);
 
@@ -125,6 +125,12 @@ if (!localStorage[cacheKey]
 
 
 
+function getElementById<T extends keyof HTMLElementTagNameMap>(id: string): HTMLElementTagNameMap[T] {
+    const el = document.getElementById(id);
+    if (!el) throw new Error(`Élément introuvable : '${id}'`);
+    return <HTMLElementTagNameMap[T]> el;
+}
+
 /** Charge un calendrier à partir du contenu d'un fichier iCalendar */
 function loadIcal(ical: string): void {
     calendar.setEvents(parseIcal(ical));
@@ -174,6 +180,7 @@ function updateInputDate(): void {
 /** Change la date affichée et du calendrier */
 function setDate(date: Date): void {
     dateInput.valueAsDate = date; // Convertit les dates invalide en null
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (dateInput.valueAsDate) {
         calendar.setDate(dateInput.valueAsDate);
     } else {

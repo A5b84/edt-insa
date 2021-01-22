@@ -63,11 +63,11 @@ export function addSwipeListener(
         if (dx * dx + dy * dy < minRadius) return;
 
         if (Math.abs(dy) > Math.abs(dx)) {
-            if (dy < 0) onSwipeUp && onSwipeUp();
-            else onSwipeDown && onSwipeDown();
+            if (dy < 0) onSwipeUp?.();
+            else onSwipeDown?.();
         } else {
-            if (dx < 0) onSwipeLeft && onSwipeLeft();
-            else onSwipeRight && onSwipeRight();
+            if (dx < 0) onSwipeLeft?.();
+            else onSwipeRight?.();
         }
 
         startX = startY = null;

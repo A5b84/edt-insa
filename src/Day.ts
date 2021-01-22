@@ -63,7 +63,7 @@ export default class Day extends ElementTemplate {
         }
 
         this.name.innerText = s;
-        this.name.title = affixes && affixes[2] || '';
+        this.name.title = affixes?.[2] || '';
         this.content.classList.toggle('today', isToday(date));
     }
 

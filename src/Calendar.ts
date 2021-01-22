@@ -21,24 +21,24 @@ export default class Calendar {
 
 
     readonly element: HTMLElement;
-    readonly hours: HTMLDivElement;
-    readonly dayNames: HTMLDivElement;
-    readonly dayContents: HTMLDivElement;
+    readonly hours: Element;
+    readonly dayNames: Element;
+    readonly dayContents: Element;
 
     // Faut toujours au moins un jour visible par semaine (pour pas tout casser)
     protected readonly days: Day[] = new Array(7).fill(0).map((_, i) => new Day(i < 5));
     protected events: VEvent[] = [];
     protected currDate: Date;
     protected focusedDay: number;
-    protected wasWeekLayout: boolean = this.isWeekLayout();
+    protected wasWeekLayout: boolean;
 
 
 
     constructor(element: HTMLElement) {
         this.element = element;
-        this.hours = <HTMLDivElement> element.querySelector('.hours');
-        this.dayNames = <HTMLDivElement> element.querySelector('.day-names');
-        this.dayContents = <HTMLDivElement> element.querySelector('.day-contents');
+        this.hours = element.querySelector('.hours')!;
+        this.dayNames = element.querySelector('.day-names')!;
+        this.dayContents = element.querySelector('.day-contents')!;
 
         // Ajout des jours
         for (const day of this.days) {
@@ -48,6 +48,7 @@ export default class Calendar {
 
         this.currDate = new Date(Date.now() - 14 * 86400e3 + MIDNIGHT_OFFSET);
         this.focusedDay = 0; // Valeurs temporaires modifiées juste après
+        this.wasWeekLayout = this.isWeekLayout();
         this.setDateInternal(new Date());
         this.rebuildHours();
     }
@@ -95,7 +96,7 @@ export default class Calendar {
         this.rebuildFocusedDayBounds(); // À éventuellement enlever (comme pour rebuildHours)
 
         // Visibilité des jours
-        for (var i = this.days.length - 1; i >= 0; i--) {
+        for (i = this.days.length - 1; i >= 0; i--) {
             // Masquage des jours vides avec rien à leur droite
             const day = this.days[i];
             if (!day.isEmpty() || day.alwaysVisible) break;
@@ -195,6 +196,7 @@ export default class Calendar {
         this.rebuildFocusedDayBounds();
     }
 
+    // eslint-disable-next-line no-undef
     protected moveToNextVisibleDay(start: number | Date = this.focusedDay): void {
         if (start instanceof Date) start = getDayIndex(start);
 
@@ -212,6 +214,7 @@ export default class Calendar {
         this.moveToWeekRelative(1);
     }
 
+    // eslint-disable-next-line no-undef
     protected moveToPreviousVisibleDay(start: number | Date = this.focusedDay): void {
         if (start instanceof Date) start = getDayIndex(start);
 

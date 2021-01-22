@@ -12,7 +12,7 @@ Page web pour voir son emploi du temps de l'INSA, très très inspiré de [edt.j
     - [`Day` > `NAME_AFFIXES`](src/Day.ts)
 
 ## Compilation
-1. Packages globaux : `npm i -g typescript browserify`
+1. Packages globaux : `npm i -g browserify`
 2. Packages locaux : `npm i`
 3. `Ctrl+Shift+B` (voir [tasks.json](.vscode/tasks.json))
 
