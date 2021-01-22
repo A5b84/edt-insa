@@ -275,19 +275,15 @@ input[type=date] {
     flex-shrink: 0;
 }
 
-.event > :not(.event-name) {
-    margin: 0 auto; /* Pour pas que le lien fasse toute la ligne */
-}
-
 .event-name {
     line-height: var(--event-name-line-height); /* line-height: 1 marche pô avec overflow-x */
     font-size: var(--event-name-font-size);
 }
 
-:root:not(.simple) .event:not(:hover) .event-name,
-.simple .event.short:not(:hover) .event-name {
+:root:not(.simple) .event:not(:hover) > *,
+.simple .event.short:not(:hover) > * {
     /* Recoupage sauf pour les cours longs en mode simple */
-    overflow-x: hidden;
+    overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }

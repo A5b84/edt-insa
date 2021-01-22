@@ -15,8 +15,8 @@ const MIDNIGHT_OFFSET = 14400e3;
 
 export default class Calendar {
 
-    protected static readonly DEFAULT_DAY_START = floorHours(10);
-    protected static readonly DEFAULT_DAY_END = ceilHours(14);
+    private static readonly DEFAULT_DAY_START = floorHours(10);
+    private static readonly DEFAULT_DAY_END = ceilHours(14);
 
 
 
@@ -26,11 +26,11 @@ export default class Calendar {
     readonly dayContents: Element;
 
     // Faut toujours au moins un jour visible par semaine (pour pas tout casser)
-    protected readonly days: Day[] = new Array(7).fill(0).map((_, i) => new Day(i < 5));
-    protected events: VEvent[] = [];
-    protected currDate: Date;
-    protected focusedDay: number;
-    protected wasWeekLayout: boolean;
+    private readonly days: Day[] = new Array(7).fill(0).map((_, i) => new Day(i < 5));
+    private events: VEvent[] = [];
+    private currDate: Date;
+    private focusedDay: number;
+    private wasWeekLayout: boolean;
 
 
 
@@ -56,7 +56,7 @@ export default class Calendar {
 
 
     /** Recrée tous les trucs pour l'affichage */
-    protected rebuildWeek(): void {
+    private rebuildWeek(): void {
         const weekStart = getWeekStart(this.currDate);
         const weekEnd = weekStart + 86400e3 * 7;
 
@@ -116,7 +116,7 @@ export default class Calendar {
         this.notifyLayoutChanged();
     }
 
-    protected rebuildHours(): void {
+    private rebuildHours(): void {
         // Enlèvement
         while (this.hours.childElementCount) {
             this.hours.firstElementChild?.remove();
@@ -132,7 +132,7 @@ export default class Calendar {
         }
     }
 
-    protected rebuildFocusedDayBounds(): void {
+    private rebuildFocusedDayBounds(): void {
         const bounds = getRoundedDayStartEnd(this.days[this.focusedDay])
             || [Calendar.DEFAULT_DAY_START, Calendar.DEFAULT_DAY_END];
         this.element.style.setProperty('--focused-day-start', bounds[0] + '');
@@ -162,7 +162,7 @@ export default class Calendar {
     }
 
     /** Modifie juste la date, le jour sélectionné, et la semaine (si nécessaire) */
-    protected setDateInternal(date: Date, adjustToVisible: boolean = true): void {
+    private setDateInternal(date: Date, adjustToVisible: boolean = true): void {
         const oldDate = this.currDate;
         this.currDate = new Date(date);
         this.currDate.setHours(6); // Pour les changements d'heure
@@ -188,7 +188,7 @@ export default class Calendar {
         this.rebuildHours();
     }
 
-    protected setFocusedDay(index: number): void {
+    private setFocusedDay(index: number): void {
         this.days[this.focusedDay].setFocused(false);
         this.days[index].setFocused(true);
         this.focusedDay = index;
@@ -197,7 +197,7 @@ export default class Calendar {
     }
 
     // eslint-disable-next-line no-undef
-    protected moveToNextVisibleDay(start: number | Date = this.focusedDay): void {
+    private moveToNextVisibleDay(start: number | Date = this.focusedDay): void {
         if (start instanceof Date) start = getDayIndex(start);
 
         for (var i = start + 1; i < this.days.length; i++) {
@@ -215,7 +215,7 @@ export default class Calendar {
     }
 
     // eslint-disable-next-line no-undef
-    protected moveToPreviousVisibleDay(start: number | Date = this.focusedDay): void {
+    private moveToPreviousVisibleDay(start: number | Date = this.focusedDay): void {
         if (start instanceof Date) start = getDayIndex(start);
 
         for (var i = start - 1; i >= 0; i--) {
@@ -232,7 +232,7 @@ export default class Calendar {
         this.moveToWeekRelative(-1);
     }
 
-    protected moveToWeekRelative(weeks: number): void {
+    private moveToWeekRelative(weeks: number): void {
         this.setDateInternal(
             new Date(this.currDate.getTime() + weeks * 7 * 86400e3),
             false
@@ -268,11 +268,11 @@ export default class Calendar {
         this.wasWeekLayout = isWeekLayout;
     }
 
-    protected isWeekLayout(): boolean {
+    private isWeekLayout(): boolean {
         return innerWidth > 640;
     }
 
-    protected getStartEnd(): [number, number] {
+    private getStartEnd(): [number, number] {
         const style = getComputedStyle(this.element);
         const start = style.getPropertyValue('--day-start');
         const end = style.getPropertyValue('--day-end');
@@ -284,14 +284,14 @@ export default class Calendar {
 
 
 
-    protected getFirstVisibleDay(): number {
+    private getFirstVisibleDay(): number {
         for (var i = 0; i < this.days.length; i++) {
             if (this.days[i].isVisible()) return i;
         }
         return 0;
     }
 
-    protected getLastVisibleDay(): number {
+    private getLastVisibleDay(): number {
         for (var i = this.days.length - 1; i >= 0; i--) {
             if (this.days[i].isVisible()) return i;
         }

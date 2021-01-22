@@ -1,15 +1,21 @@
 import EventElement from './templates/EventElement';
 
-
-
 /** Expression régulière qui est censée matcher toutes les descriptions */
-// TODO à modifier pour les évènements qui ont les classes sur plusieurs lignes
+// TODO à modifier pour les évènements qui ont plusieurs lignes avec des classes
 const DESCRIPTION_EXP = /^\n\[(?<subject>.+?):(?<type>.+?)\] (?<name>.+)\n(?<details>.*)\n\n(?:\k<subject>:\k<type>::)?(?<groups>.+)\n(?:(?<people>(?:[^?\n].*\n)*[^?\n].*)\n)?(?:(?<comments>\?.+)\n)?\n\(Exporté le:/;
 const COVID_GROUP_EXP = /Autres activités pédagogiques - .+enseignement présentiel des sous-groupes ?./;
 
-type DescriptionMatchGroup =  'subject' | 'type' | 'name' | 'details' | 'groups' | 'people';
-type DescriptionMatchGroups = Record<DescriptionMatchGroup, string>;
-// TODO vérifier que les trucs optionnels vallent jamais undefined
+/** Type de `DESCRIPTION_EXP.exec(...).groups` */
+type DescriptionMatchGroups = {
+    subject: string,
+    type: string,
+    name: string,
+    details: string,
+    groups: string,
+    people?: string,
+    comments?: string,
+};
+type DescriptionMatchGroup =  keyof DescriptionMatchGroups;
 
 
 
@@ -26,10 +32,10 @@ export default class VEvent {
     // readonly lastModified?: Date;
     // readonly sequence?: number;
 
-    protected element: EventElement | null = null;
+    private element: EventElement | null = null;
     /** Groupes matchés dans la description (pour récupérer des trucs)
      * `undefined` = pas encore fait, `null` = échec */
-    protected descriptionGroups?: DescriptionMatchGroups | null;
+    private descriptionGroups?: DescriptionMatchGroups | null;
 
 
 
@@ -67,14 +73,10 @@ export default class VEvent {
 
 
 
-    /** Renvoie vrai si l'évènement a les infos en plus */
+    /** Récupère les informations depuis la description et renvoie vrai si
+     * l'évènement en a */
     hasDescriptionInfo(): boolean {
-        this.matchDescriptionInfo();
-        return this.descriptionGroups !== null;
-    }
-
-    /** Matche les infos de la description */
-    protected matchDescriptionInfo() {
+        // On récupère les informations si c'est pas déjà fait
         if (this.descriptionGroups === undefined) {
             const match = this.description.match(DESCRIPTION_EXP);
 
@@ -98,11 +100,13 @@ export default class VEvent {
                 console.warn(`Description qui correspond pas à l'expression régulière`, this, this.description);
             }
         }
+
+        // Fini
+        return this.descriptionGroups !== null;
     }
 
-    protected getGroup(group: DescriptionMatchGroup): string {
-        this.matchDescriptionInfo();
-        return this.descriptionGroups ? this.descriptionGroups[group] : '';
+    private getGroup<K extends DescriptionMatchGroup>(group: K): string {
+        return this.hasDescriptionInfo() && this.descriptionGroups![group]! || '';
     }
 
     /** Matière (Ex: PC-S3-IF-ACP) */

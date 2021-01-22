@@ -7,9 +7,9 @@ export default class Day extends ElementTemplate {
     readonly name: HTMLDivElement;
     readonly content: HTMLDivElement;
 
-    protected events: VEvent[] = [];
+    private events: VEvent[] = [];
     readonly alwaysVisible: boolean;
-    protected visible: boolean = true;
+    private visible: boolean = true;
 
 
 
