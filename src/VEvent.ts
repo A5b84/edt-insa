@@ -186,6 +186,8 @@ const ALIAS_MAP = <const> {
     'Activités Physiques et Sportives - affichage à l\'edt': 'EPS',
     'affichage des Langues à l\'edt': 'Anglais',
     'Parcours Architecture Matérielle, Logicielle et Réseau sans-fil pour les Données Capteurs': 'P2i 2',
+    'Parcours Architecture Matérielle, Logicielle et Réseau sans-fil pour les Données Capteurs \tSHUMA': 'P2i 2 (SHUMA)',
+    'Parcours Architecture Matérielle, Logicielle et Réseau sans-fil pour les Données Capteurs \tSHFIMI': 'P2i 2 (SHFIMI)',
     'Physique:électromagnétisme-ondes': 'Physique\u00a0: électromagnétisme - ondes',
     'Physique:ondes': 'Physique\u00a0: ondes',
 };

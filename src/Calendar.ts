@@ -30,7 +30,7 @@ export default class Calendar {
     private events: VEvent[] = [];
     private currDate: Date;
     private focusedDay: number;
-    private wasWeekLayout: boolean;
+    private wasWeekLayout: boolean = this.isWeekLayout();
 
 
 
@@ -48,7 +48,6 @@ export default class Calendar {
 
         this.currDate = new Date(Date.now() - 14 * 86400e3 + MIDNIGHT_OFFSET);
         this.focusedDay = 0; // Valeurs temporaires modifiées juste après
-        this.wasWeekLayout = this.isWeekLayout();
         this.setDateInternal(new Date());
         this.rebuildHours();
     }
