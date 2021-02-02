@@ -26,8 +26,8 @@ const calendarId = search.get('cal');
 const cacheKey = `adeCache_${calendarId}`;
 const cacheTimeKey = `adeCacheTime_${calendarId}`;
 
-const help = (<any> window).help = <const> { Pako, calendar, cacheKey, cacheTimeKey, fetchIcal };
-Object.assign(window, help); // Variables dans la console pour jouer avec
+const help = <const> { Pako, calendar, cacheKey, cacheTimeKey, loadIcal, fetchIcal };
+Object.assign(window, { help, ...help }); // Variables dans la console pour jouer avec
 
 
 
@@ -116,11 +116,18 @@ if (localStorage[cacheKey]) {
     }
 }
 
-// Chargement du calendrier sur Internet si nécessaire
-if (!localStorage[cacheKey]
-        || !localStorage[cacheTimeKey]
-        || Date.now() - +localStorage[cacheTimeKey] >= MAX_CACHE_AGE) {
-    fetchIcal();
+// Chargement du calendrier sur Internet (ou planification)
+{
+    let fetchDelay = 0; // Délai avant de le ré-récupérer
+    if (localStorage[cacheKey]) {
+        // Récupération plus tard si il a déjà été récupéré récemment
+        const cacheTime = +localStorage[cacheTimeKey];
+        if (isFinite(cacheTime)) fetchDelay = MAX_CACHE_AGE - (Date.now() - cacheTime);
+    }
+    setTimeout(() => {
+        fetchIcal();
+        setInterval(() => fetchIcal(), MAX_CACHE_AGE);
+    }, fetchDelay);
 }
 
 
@@ -134,15 +141,7 @@ function getElementById<T extends keyof HTMLElementTagNameMap>(id: string): HTML
 /** Charge un calendrier à partir du contenu d'un fichier iCalendar */
 function loadIcal(ical: string): void {
     calendar.setEvents(parseIcal(ical));
-
-    // Date de récupération
-    const cacheTime: number = +localStorage[cacheTimeKey];
-    if (isFinite(cacheTime)) { // Mieux que isNaN (pas d'infini)
-        const d = new Date(cacheTime);
-        const date = d.toLocaleDateString('fr', { month: 'short', day: 'numeric' });
-        const time = d.toLocaleTimeString('fr', { hour: 'numeric', minute: 'numeric' });
-        fetchDateEl.innerText = `Récupéré le ${date} à\u00a0${time}`;
-    }
+    updateFetchDateText();
 }
 
 /** Récupère et charge le calendrier correspondant à `calendarId` */
@@ -150,17 +149,44 @@ function fetchIcal(): void {
     forceRefreshBtn.disabled = true;
     document.body.classList.add('fetching');
 
-    fetch(`https://cors-anywhere.herokuapp.com/https://ade-outils.insa-lyon.fr/ADE-Cal:~${calendarId}`)
-    .then(response => response.text())
+    fetch(`https://a5b84.herokuapp.com/https://ade-outils.insa-lyon.fr/ADE-Cal:~${calendarId}`)
+    .then(response => {
+        if (!response.ok) throw response;
+        return response.text()
+    })
     .then(ical => {
         localStorage[cacheTimeKey] = Date.now();
         loadIcal(ical);
         localStorage[cacheKey] = Pako.deflate(ical, { to: 'string' });
     })
+    .catch(error => {
+        console.error('Erreur pendant la récupération du calendrier :', error);
+        updateFetchDateText(true);
+    })
     .finally(() => {
         forceRefreshBtn.disabled = false;
         document.body.classList.remove('fetching');
     });
+}
+
+/** Actualise la date de récupération affichée */
+function updateFetchDateText(error: boolean = false) {
+    let text: string;
+    // Date
+    const cacheTime = +localStorage[cacheTimeKey];
+    if (isFinite(cacheTime)) { // Mieux que isNaN (pas d'infini)
+        const d = new Date(cacheTime);
+        const date = d.toLocaleDateString('fr', { month: 'short', day: 'numeric' });
+        const time = d.toLocaleTimeString('fr', { hour: 'numeric', minute: 'numeric' });
+        text = `Récupéré le ${date} à\u00a0${time}`;
+    } else {
+        text = 'Date de récupération inconnue';
+    }
+
+    // Erreur
+    if (error) text += ' (⚠)';
+
+    fetchDateEl.innerText = text;
 }
 
 
