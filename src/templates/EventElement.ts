@@ -1,4 +1,4 @@
-import { formatTime, getTimeInHours } from '../Utils';
+import { DEBUG, formatTime, getTimeInHours } from '../Utils';
 import VEvent from '../VEvent';
 import ElementTemplate from './ElementTemplate';
 
@@ -63,6 +63,11 @@ export default class EventElement extends ElementTemplate {
             }
         } else {
             this.getEl('.event-location').remove();
+        }
+
+        // Debug
+        if (DEBUG) {
+            el.addEventListener('click', () => console.log(event));
         }
     }
 

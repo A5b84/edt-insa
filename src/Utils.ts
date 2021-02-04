@@ -1,3 +1,7 @@
+/** `true` si en mode debug (si `debug` est en paramètre dans l'url),
+ * `false` sinon */
+export const DEBUG = new URLSearchParams(location.href).get('debug') !== null;
+
 /** Renvoie l'heure avec les minutes et les secondes en un seul nombre
  * ([0, 24[) */
 export function getTimeInHours(date: Date): number {

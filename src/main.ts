@@ -77,11 +77,7 @@ themeBtn.addEventListener('click', () => {
 });
 if (localStorage.theme) themeBtn.click();
 
-forceRefreshBtn.addEventListener('click', () => {
-    delete localStorage[cacheKey];
-    delete localStorage[cacheTimeKey];
-    fetchIcal();
-});
+forceRefreshBtn.addEventListener('click', () => fetchIcal());
 
 
 

@@ -125,9 +125,23 @@ export default class VEvent {
 
 
     getColor(): string {
-        const subject = this.getSubject();
         // Couleur fixe
-        if (subject.startsWith('PC-S4-P2i')) return `hsl(240 55% 67%)`;
+        const subject = this.getSubject();
+        if (subject.startsWith('PC-S4-P2i')) {
+            // P2i
+            if (subject.startsWith('PC-S4-P2i2')) {
+                // Couleurs spécifiques au P2i 2
+                const details = this.getDetails();
+                if (details.startsWith('M1')) return 'hsl(270 65% 65%)';
+                if (details.startsWith('M2')) return COLORS[14];
+                if (details.startsWith('M3')) return COLORS[2];
+                if (details.startsWith('M4')) return COLORS[9];
+                if (details.startsWith('PR.HU') || details.startsWith('PR.RD')) return COLORS[11];
+                if (details.startsWith('P')) return COLORS[3];
+            }
+
+            return `hsl(240 55% 67%)`;
+        }
         if (subject in COLOR_MAP) return COLOR_MAP[<keyof typeof COLOR_MAP> subject];
 
         // Hash
@@ -139,10 +153,11 @@ export default class VEvent {
 
 
 
+/** Liste de couleurs utilisées pour en choisir une au hasard */
 const COLORS = <const> [
     'hsl(0 67% 50%)', 'hsl(15 72% 50%)', 'hsl(30 75% 50%)', 'hsl(45 75% 50%)',
     'hsl(60 75% 45%)', 'hsl(75 80% 42%)', 'hsl(90 75% 42%)', 'hsl(105 70% 43%)',
-    'hsl(120 69% 42%)', 'hsl(135 72% 45%)', 'hsl(150 75% 45%)', 'hsl(165 80% 44%)',
+    'hsl(120 69% 42%)', 'hsl(135 65% 40%)', 'hsl(150 75% 45%)', 'hsl(165 80% 44%)',
     'hsl(180 80% 45%)', 'hsl(195 80% 48%)', 'hsl(210 70% 50%)', 'hsl(225 65% 50%)',
     'hsl(240 62% 52%)', 'hsl(255 65% 55%)', 'hsl(270 65% 55%)', 'hsl(285 65% 55%)',
     'hsl(300 62% 57%)', 'hsl(315 67% 55%)', 'hsl(330 70% 55%)', 'hsl(345 75% 55%)',
