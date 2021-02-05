@@ -1,9 +1,9 @@
 import EventElement from './templates/EventElement';
 
 /** Expression régulière qui est censée matcher toutes les descriptions */
-// TODO à modifier pour les évènements qui ont plusieurs lignes avec des classes
+// TODO à modifier pour les évènements qui ont plusieurs lignes avec des classes/personnes
 const DESCRIPTION_EXP = /^\n\[(?<subject>.+?):(?<type>.+?)\] (?<name>.+)\n(?<details>.*)\n\n(?:\k<subject>:\k<type>::)?(?<groups>.+)\n(?:(?<people>(?:[^?\n].*\n)*[^?\n].*)\n)?(?:(?<comments>\?.+)\n)?\n\(Exporté le:/;
-const COVID_GROUP_EXP = /Autres activités pédagogiques - .+enseignement présentiel des sous-groupes ?./;
+const COVID_GROUP_EXP = /Autres activités pédagogiques (?:- .+enseignement présentiel des sous-groupes ?.|\tprésentiel pour \(.\) hors TP)/;
 
 /** Type de `DESCRIPTION_EXP.exec(...).groups` */
 type DescriptionMatchGroups = {
