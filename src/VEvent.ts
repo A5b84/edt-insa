@@ -1,4 +1,5 @@
 import EventElement from './templates/EventElement';
+import { hasKey } from './Utils';
 
 /** Expression régulière qui est censée matcher toutes les descriptions */
 // TODO à modifier pour les évènements qui ont plusieurs lignes avec des classes/personnes
@@ -83,11 +84,33 @@ export default class VEvent {
             if (match?.groups) {
                 const groups = this.descriptionGroups = <DescriptionMatchGroups> match.groups;
                 // Ajustements
+
                 //      Nom des matières
-                if (groups.name in ALIAS_MAP) {
-                    groups.name = ALIAS_MAP[<keyof typeof ALIAS_MAP> groups.name];
+                if (hasKey(ALIAS_MAP, groups.name)) {
+                    groups.name = ALIAS_MAP[groups.name];
+
                 } else if (COVID_GROUP_EXP.test(groups.name)) {
                     groups.name = 'Présentiel';
+
+                } else if (groups.name.startsWith('Parcours Architecture Matérielle')) {
+                    // P2i 2
+                    groups.name = 'P2i\u00a02';
+                    const details = groups.details;
+                    let subName: string = '';
+
+                    if (hasKey(P2I2_ALIAS_MAP, details)) { // Matières normales
+                        subName = P2I2_ALIAS_MAP[details];
+                    } else if (/^P[123']/.test(details)) { // Projet
+                        subName = `${details.slice(0, 2)}\u00a0: projet`;
+                    } else if (details.startsWith('M4') || details.startsWith('PR.HU')) {
+                        subName = 'Sciences humaines et sociales'; // SHES
+                    } else if (details.startsWith('PR.RD')) { // Recherche doc
+                        subName = 'Recherche documentaire';
+                    } else if (details.startsWith('PR.TU')) { // Architecture
+                        subName = 'Architecture';
+                    }
+
+                    if (subName) groups.name += ` - ${subName}`;
                 }
 
                 //      Liste des groupes
@@ -134,15 +157,15 @@ export default class VEvent {
                 const details = this.getDetails();
                 if (details.startsWith('M1')) return 'hsl(270 65% 65%)';
                 if (details.startsWith('M2')) return COLORS[14];
-                if (details.startsWith('M3')) return COLORS[2];
-                if (details.startsWith('M4')) return COLORS[9];
-                if (details.startsWith('PR.HU') || details.startsWith('PR.RD')) return COLORS[11];
+                if (details.startsWith('M3')) return COLORS[22];
+                if (details.startsWith('M4') || details.startsWith('PR.HU')
+                        || details.startsWith('PR.RD')) return COLORS[13];
                 if (details.startsWith('P')) return COLORS[3];
             }
 
             return `hsl(240 55% 67%)`;
         }
-        if (subject in COLOR_MAP) return COLOR_MAP[<keyof typeof COLOR_MAP> subject];
+        if (hasKey(COLOR_MAP, subject)) return COLOR_MAP[subject];
 
         // Hash
         const hash = hashCode(subject || this.summary);
@@ -200,11 +223,16 @@ const ALIAS_MAP = <const> {
     'Activités Physiques et Sportives': 'EPS',
     'Activités Physiques et Sportives - affichage à l\'edt': 'EPS',
     'affichage des Langues à l\'edt': 'Anglais',
-    'Parcours Architecture Matérielle, Logicielle et Réseau sans-fil pour les Données Capteurs': 'P2i 2',
-    'Parcours Architecture Matérielle, Logicielle et Réseau sans-fil pour les Données Capteurs \tSHUMA': 'P2i 2 (SHUMA)',
-    'Parcours Architecture Matérielle, Logicielle et Réseau sans-fil pour les Données Capteurs \tSHFIMI': 'P2i 2 (SHFIMI)',
     'Physique:électromagnétisme-ondes': 'Physique\u00a0: électromagnétisme - ondes',
     'Physique:ondes': 'Physique\u00a0: ondes',
+};
+
+const P2I2_ALIAS_MAP = <const> {
+    'M1.CA': 'M1\u00a0: Chaîne d\'acquisition',
+    'M1.PC': 'M1\u00a0: Physique des capteurs',
+    'M2': 'M2\u00a0: Statistiques et séries de Fourier',
+    'M3.BD': 'M3\u00a0: Base de données capteurs',
+    'M3.RC': 'M3\u00a0: Réseaux de capteurs',
 };
 
 

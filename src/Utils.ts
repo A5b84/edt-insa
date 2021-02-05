@@ -2,6 +2,8 @@
  * `false` sinon */
 export const DEBUG = new URLSearchParams(location.href).get('debug') !== null;
 
+
+
 /** Renvoie l'heure avec les minutes et les secondes en un seul nombre
  * ([0, 24[) */
 export function getTimeInHours(date: Date): number {
@@ -37,11 +39,18 @@ export function formatTime(date: Date | number) {
 
 
 
-/** Renvoie un string avec les premières lettres de mots en majuscules et le
+/** @returns un string avec les premières lettres de mots en majuscules et le
  * reste en minuscules */
 export function toTitleCase(s: string): string {
     return s.toLowerCase()
     .replace(/(?:^| )\S/gm, char => char.toUpperCase());
+}
+
+
+
+/** @returns `true` ssi `key` a une valeur dans `o` */
+export function hasKey<K extends PropertyKey>(o: Record<K, unknown>, key: PropertyKey): key is K {
+    return Object.prototype.hasOwnProperty.call(o, key);
 }
 
 
