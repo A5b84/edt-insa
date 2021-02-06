@@ -4,7 +4,8 @@ import { hasKey } from './Utils';
 /** Expression régulière qui est censée matcher toutes les descriptions */
 // TODO à modifier pour les évènements qui ont plusieurs lignes avec des classes/personnes
 const DESCRIPTION_EXP = /^\n\[(?<subject>.+?):(?<type>.+?)\] (?<name>.+)\n(?<details>.*)\n\n(?:\k<subject>:\k<type>::)?(?<groups>.+)\n(?:(?<people>(?:[^?\n].*\n)*[^?\n].*)\n)?(?:(?<comments>\?.+)\n)?\n\(Exporté le:/;
-const COVID_GROUP_EXP = /Autres activités pédagogiques (?:- .+enseignement présentiel des sous-groupes ?.|\tprésentiel pour \(.\) hors TP)/;
+const COVID_GROUP_EXP = /Autres activités pédagogiques (?:- .+enseignement présentiel des sous-groupes ?.|\tprésentiel pour \(.\) hors TP)|présentiel P2i pour \(.\)/;
+const PRESENTIEL = 'Présentiel';
 
 /** Type de `DESCRIPTION_EXP.exec(...).groups` */
 type DescriptionMatchGroups = {
@@ -90,7 +91,7 @@ export default class VEvent {
                     groups.name = ALIAS_MAP[groups.name];
 
                 } else if (COVID_GROUP_EXP.test(groups.name)) {
-                    groups.name = 'Présentiel';
+                    groups.name = PRESENTIEL;
 
                 } else if (groups.name.startsWith('Parcours Architecture Matérielle')) {
                     // P2i 2
@@ -148,7 +149,10 @@ export default class VEvent {
 
 
     getColor(): string {
-        // Couleur fixe
+        // Présentiel
+        if (this.getName() === PRESENTIEL) return 'hsl(15 25% 40%)';
+
+        // Matières
         const subject = this.getSubject();
         if (subject.startsWith('PC-S4-P2i')) {
             // P2i
@@ -167,7 +171,7 @@ export default class VEvent {
         }
         if (hasKey(COLOR_MAP, subject)) return COLOR_MAP[subject];
 
-        // Hash
+        // Couleur basée sur le hash
         const hash = hashCode(subject || this.summary);
         return COLORS[((hash % COLORS.length) + COLORS.length) % COLORS.length];
     }
@@ -213,10 +217,6 @@ const COLOR_MAP = <const> {
     'PC-S4-IF-ACEMP': COLORS[20],
     // Cultures, Sciences, Sociétés
     'PC-S3-CSS-P':    COLORS[23],
-
-    // 'Autres activités pédagogiques'
-    'PC-S3-ACT-EDT': 'hsl(15 25% 40%)',
-    'PC-S4-ACT-EDT': 'hsl(15 25% 40%)',
 };
 
 const ALIAS_MAP = <const> {
