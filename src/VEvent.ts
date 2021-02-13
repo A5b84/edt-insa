@@ -208,6 +208,7 @@ const COLOR_MAP = <const> {
     'PC-S3-CH-ACEMP': COLORS[13],
     // Anglais
     'HU-L-S1-ANG':    COLORS[15],
+    'HU-L-S2-ANG':    COLORS[15],
     'PC-S13-LV-EDT':  COLORS[15],
     // Mécanique générale
     'PC-S3-MG-ACEMP': COLORS[18],
